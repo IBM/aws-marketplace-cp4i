@@ -1,0 +1,684 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for an CP4I techzone deployment.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: 
+          default: API Configuration
+        Parameters:
+          - RosaToken
+          - CpiEntitlementKey
+      - Label: 
+          default: Networking
+        Parameters:
+          - VPCID
+          - VPCCIDR
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PublicSubnet3ID
+          - BootNodeAccessCIDR
+          - ClusterNetworkCIDR
+          - ClusterNetworkHostPrefix
+          - ServiceNetworkCIDR
+      - Label:
+          default: AZ
+        Parameters:
+          - NumberOfAZs
+          - AvailabilityZones
+      - Label: 
+          default: Instance Configuration
+        Parameters:
+          - Tenancy
+          - KeyPairName
+      - Label: 
+          default: Cluster Configuration
+        Parameters:
+          - PrivateCluster
+          - EnableFips
+          - StorageType
+          - OCSInstanceType
+          - ClusterName
+          - WorkerInstanceType
+          - WorkerMachineCount
+      - Label:
+          default: Openshift Configuration
+        Parameters:
+          - OpenshiftVersion
+      - Label: 
+          default: CPI
+        Parameters:
+          - CpiAcceptLicense
+          - CpiVersion
+Parameters:
+  Tenancy:
+    Description: >-
+       Amazon EC2 instances tenancy type, default/dedicated.
+    Type: String
+    AllowedValues:
+      - "default"
+      - "dedicated"
+    Default: "default"
+  VPCID:
+    Description: The ID of your existing VPC for deployment.
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-032953df60
+  PrivateSubnet1ID:
+    Description: The ID of the private subnet in Availability Zone 1 for the workload (e.g., subnet-a0246dcd).
+    Type: String
+    Default: "subnet-0d610d4db25f"
+  PrivateSubnet2ID:
+    Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd).
+    Type: String
+    Default: "subnet-0698e9b4c41"
+  PrivateSubnet3ID:
+    Description: The ID of the private subnet in Availability Zone 3 for the workload (e.g., subnet-b1f4a2cd).
+    Type: String
+    Default: "subnet-03597324708"
+  PublicSubnet1ID:
+    Description: The ID of the public subnet in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac).
+    Type: String
+    Default: "subnet-661bea107d1"
+  PublicSubnet2ID:
+    Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e).
+    Type: String
+    Default: "subnet-03f88f7c2461"
+  PublicSubnet3ID:
+    Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e).
+    Type: String
+    Default: "subnet-0a31243f87f9"
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches.
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: CP4I-ROSA
+  BootNodeAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access boot node instance. We recommend that you set this value to a trusted IP range. The value `0.0.0.0/0` permits all IP addresses to access. Additional values can be added post-deployment from the Amazon EC2 console.
+    Type: String
+    Default: 0.0.0.0/0
+  ClusterNetworkCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The Cluster Network CIDR IP range that is used as IP address pools for pods.  
+    Type: String
+    Default: 10.128.0.0/14  
+  ClusterNetworkHostPrefix:
+    Description: Cluster network host prefix.
+    Type: Number
+    Default: 23
+  ServiceNetworkCIDR: 
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Description: The service network CIDR IP range.
+    Type: String
+    Default: 172.30.0.0/16
+  OpenshiftVersion:
+    Description: Choose Openshift Version
+    Type: String
+    Default: "4.12.15"
+  ClusterName:
+    Default: "cp4irosa"
+    Description: Custom cluster name for kubernetes.io/cluster/tags.
+    Type: String
+    AllowedPattern: ^[0-9a-z-]*$
+    MaxLength: 15
+  RosaToken:
+    Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account
+    Type: String
+    Default: "Download ROSA token from https://console.redhat.com/openshift/token/show"
+  OCSInstanceType:
+    Description: Update this value if Storage type selected is OCS. The EC2 instance type for the OpenShift Container Storage instances.
+    Type: String
+    Default: m5.4xlarge
+    ConstraintDescription: Must contain valid instance type
+    AllowedValues:
+      - m4.4xlarge
+      - m4.8xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - c5.8xlarge
+      - c5.12xlarge
+      - c5.9xlarge
+      - r5.4xlarge
+      - r5.8xlarge
+      - r5.12xlarge
+      - m4.10xlarge
+      - c4.8xlarge
+  WorkerInstanceType:
+    Description: The EC2 instance type for the OpenShift worker nodes.
+    ConstraintDescription: Must contain valid instance type
+    Type: String
+    AllowedValues:
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.24xlarge
+      - m5a.4xlarge
+      - m5a.8xlarge
+      - m5a.12xlarge
+      - m5a.24xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - r5.4xlarge
+      - r5.9xlarge
+      - r5.12xlarge
+      - r5.18xlarge
+      - r5.24xlarge
+    Default: m5.4xlarge
+  WorkerMachineCount:
+    Description: The desired capacity for the ROSA worker inodes. Minimum of 3 nodes required for multi-zone deployment. It should multiple of 3.
+    Type: Number
+    Default: 6
+  PrivateCluster:  
+    Description: To Deploy a Private cluster select true and false for Public cluster
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+  NumberOfAZs:  
+    Default: 3
+    Description: >-
+      The number of Availability Zones to be used for the deployment. For a single CP4I ROSA cluster to be highly available, three Availability Zones are needed to avoid a single point of failure.
+    Type: Number
+    AllowedValues:
+      - 1
+      - 3
+  AvailabilityZones:
+    Description: The list of Availability Zones to use for the subnets in the VPC. The Template uses one or three Availability Zones and preserves the logical order you specify.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+    Default: us-east-2a,us-east-2b,us-east-2c
+  EnableFips:
+    Description: Enable Fips for Openshift
+    Type: String
+    AllowedValues:
+      - "false"
+      - "true"
+    Default: "false"
+  StorageType:
+    Description: Choose storage type to be configured for ROSA.  
+    Type: String
+    AllowedValues:
+      - "efs"
+      - "ocs"
+    Default: "efs"
+  CpiEntitlementKey:
+    Description: The CPI entitlement key to access IBM Container Registry.
+    Type: String 
+    Default: ""
+    NoEcho: 'true'
+  CpiAcceptLicense:
+    Description: I have read and agreed to the license terms that were provided to me at time of purchase.
+    Type: String
+    Default: 'reject'
+    AllowedValues:
+      - "accept"
+      - "reject"
+    ConstraintDescription: must answer 'accept'
+  CpiVersion:
+    Description: CPI version to be installed on ROSA
+    Type: String
+    Default: "2022.2.1"
+
+Mappings:
+  AWSAMIRegionMap:
+    us-east-1:
+      BootNodeAmiId: ami-06640050dc3f556bb
+      COREOSAmiId: ami-0b35795bcab04ee70
+    us-east-2:
+      BootNodeAmiId: ami-092b43193629811af
+      COREOSAmiId: ami-0c17b13bb8b268411
+    us-west-1:
+      BootNodeAmiId: ami-0186e3fec9b0283ee
+      COREOSAmiId: ami-004de02e4e2bba5f2
+    us-west-2:
+      BootNodeAmiId: ami-08970fb2e5767e3b8
+      COREOSAmiId: ami-0237df7fc4ba6a5cc
+    ap-south-1:
+      BootNodeAmiId: ami-05c8ca4485f8b138a
+      COREOSAmiId: ami-02b81ab6d01174430
+    ap-northeast-3:
+      BootNodeAmiId: ami-044921b7897a7e0da
+      COREOSAmiId: ami-03450c8fc4ff0f7bd
+    ap-northeast-2:
+      BootNodeAmiId: ami-06c568b08b5a431d5
+      COREOSAmiId: ami-087c3504f536820f8
+    ap-southeast-1:
+      BootNodeAmiId: ami-051f0947e420652a9
+      COREOSAmiId: ami-099b3006ba35122c6
+    ap-southeast-2:
+      BootNodeAmiId: ami-0808460885ff81045
+      COREOSAmiId: ami-04d9e06d3edd4b78c
+    ap-northeast-1:
+      BootNodeAmiId: ami-0f903fb156f24adbf
+      COREOSAmiId: ami-04a04d42202f5dffb
+    ca-central-1:
+      BootNodeAmiId: ami-0c3d3a230b9668c02
+      COREOSAmiId: ami-0712dffd5af06d6a0
+    eu-central-1:
+      BootNodeAmiId: ami-0e7e134863fac4946
+      COREOSAmiId: ami-0b911f8bcf1f05a47
+    eu-west-1:
+      BootNodeAmiId: ami-0f0f1c02e5e4d9d9f
+      COREOSAmiId: ami-0cd860942047eaf85
+    eu-west-2:
+      BootNodeAmiId: ami-035c5dc086849b5de
+      COREOSAmiId: ami-057df328de60ac464
+    eu-west-3:
+      BootNodeAmiId: ami-0460bf124812bebfa
+      COREOSAmiId: ami-0e57008c4a59dbf99
+    eu-north-1:
+      BootNodeAmiId: ami-06a2a41d455060f8b
+      COREOSAmiId: ami-06c6466f9944aee66
+    sa-east-1:
+      BootNodeAmiId: ami-0c1b8b886626f940c
+      COREOSAmiId: ami-01e07e22429c5bdef
+
+Rules: 
+  LicenseAgreementRule:
+    Assertions:
+    - Assert:
+        Fn::Contains:
+        - - accept
+        - Ref: CpiAcceptLicense
+      AssertDescription: User must agree to the terms of the license agreement.
+
+Conditions:
+  3AZCondition: !Equals [!Ref NumberOfAZs, 3]
+  AcceptLicense: !Equals [!Ref CpiAcceptLicense, 'accept']
+  OCSCondition: !Equals [!Ref StorageType, 'ocs']
+  EfsCondition: !Equals [!Ref StorageType, 'efs']
+
+Resources:
+  CPIIAMUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+  CPIIAMUserAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref CPIIAMUser
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      Path: /
+      Policies:
+        - PolicyName: lambda-cleanUpLambda
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                  - ssm:PutParameter
+                  - ssm:GetParameter
+                  - ssm:DeleteParameter
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - logs:FilterLogEvents
+                Resource:
+                  - '*' 
+  BootNodeIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+            - "ec2.amazonaws.com"
+          Action:
+          - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+        - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+      Policies:
+      - PolicyName: bootnode-policy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Action: "ec2:Describe*"
+            Resource: "*"
+          - Effect: "Allow"
+            Action: "ec2:AttachVolume"
+            Resource: "*"
+          - Effect: "Allow"
+            Action: "ec2:DetachVolume"
+            Resource: "*"
+          - Effect: "Allow"
+            Action: "route53:*"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+            - "secretsmanager:GetSecretValue"
+            - "secretsmanager:UpdateSecret"
+            - "secretsmanager:CreateSecret"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+            - ssm:SendCommand
+            - ssm:PutParameter
+            - ssm:GetParameter
+            Resource:
+            - '*'
+  BootnodeInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: "BootNodeIamRole"
+
+  BootnodeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cluster Bootnode Security Group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref BootNodeAccessCIDR
+      VpcId: !Ref VPCID
+
+  BootnodeInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Required:
+            - StackPropertiesFile
+        StackPropertiesFile:
+          files:
+            /root/mystack.props:
+              content: !Sub |
+                AWS_REGION=${AWS::Region}
+                AWS_STACKID="${AWS::StackId}"
+                AWS_STACKNAME="${AWS::StackName}"
+              mode: '000644'
+              owner: root
+              group: root
+            /home/ec2-user/destroy.sh:
+              content: !Sub |
+                echo "$1 - Destroy CFN stack"
+                echo "$2 - Destroy ROSA cluster"
+                cd /home/ec2-user/cp4i/managed-openshift/aws/terraform/
+                ./installer-files/rosa delete cluster --cluster=$2 --watch >> ./destroy.log
+                ./installer-files/rosa init --delete >> ./destroy.log
+                terraform destroy -var-file=terraform_vars.tfvars -auto-approve >> ./destroy.log
+                aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
+              mode: '000777'
+              owner: root
+              group: root
+            /root/.aws/config:
+              content: !Sub |
+                [default]
+                region=${AWS::Region}
+              mode: '000600'
+              owner: root
+              group: root
+            /root/.aws/credentials:
+              content: 
+                !Sub 
+                - |  
+                  [default]
+                  aws_access_key_id=${CPIIAMUserAccessKey}
+                  aws_secret_access_key=${CPIIAMUserSecret}
+                - 
+                  CPIIAMUserAccessKey: !Ref CPIIAMUserAccessKey 
+                  CPIIAMUserSecret: !GetAtt CPIIAMUserAccessKey.SecretAccessKey
+              mode: '000600'
+              owner: root
+              group: root
+    Properties:
+      KeyName: !Ref 'KeyPairName'
+      ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", BootNodeAmiId]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 30
+            VolumeType: gp3  
+      IamInstanceProfile: !Ref BootnodeInstanceProfile
+      Tags:
+        - Key: Name
+          Value: 
+            !Sub
+            - "${ClusterName}-bootnode"
+            - ClusterName: !Ref ClusterName 
+      InstanceType: t3.large 
+      NetworkInterfaces:
+      - GroupSet:
+        - !Ref BootnodeSecurityGroup
+        AssociatePublicIpAddress: true
+        DeviceIndex: '0'
+        DeleteOnTermination: true
+        SubnetId: !Ref PublicSubnet1ID  
+      UserData:
+        Fn::Base64:
+          !Sub 
+          - |
+            #!/bin/bash -x
+
+            # Install utils
+            yum update
+            yum install -y git podman wget jq python39 unzip yum-utils
+            yum install -y yum-utils
+            yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+            yum -y install terraform
+
+            podman version
+
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install &> /var/log/userdata.awscli_install.log
+
+            git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
+            sed -i "s/aws-cfn-bootstrap-latest.tar.gz/aws-cfn-bootstrap-py3-latest.tar.gz/g" /quickstart-linux-utilities/quickstart-cfn-tools.source 
+            export P=/quickstart-linux-utilities/quickstart-cfn-tools.source
+            source $P
+            
+            qs_bootstrap_pip || qs_err " pip bootstrap failed "
+            qs_aws-cfn-bootstrap || qs_err "cfn bootstrap failed"
+            pip3 install awscli  &> /var/log/userdata.awscli_install.log || qs_err " awscli install failed "
+            /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
+            #/opt/aws/apitools/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
+
+            cd /tmp
+            qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
+            qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
+            systemctl start amazon-ssm-agent
+            systemctl enable amazon-ssm-agent
+            rm -f ./amazon-ssm-agent.rpm
+
+            wget https://get.helm.sh/helm-v3.9.4-linux-amd64.tar.gz
+            tar -zxvf helm-v3.9.4-linux-amd64.tar.gz 
+            mv linux-amd64/helm /usr/local/bin/helm
+
+            # Install openshift util version
+            wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OpenshiftVersion}/openshift-client-linux-${OpenshiftVersion}.tar.gz"
+            tar -xvf openshift-client-linux-${OpenshiftVersion}.tar.gz
+            
+            chmod u+x oc kubectl
+            mv oc /usr/local/bin
+            cp /usr/local/bin/oc /usr/bin/
+
+            mv kubectl /usr/local/bin
+            cp /usr/local/bin/kubectl /usr/bin/
+
+            export ICPDInstallationCompletedURL='${ICPDInstallationCompletedHandle}'
+            export AWS_REGION=${AWS::Region}
+            export AWS_STACKID=${AWS::StackId}
+            export AWS_STACKNAME=${AWS::StackName}
+
+            chmod +x /home/ec2-user/destroy.sh
+
+            # clone cp4i terraform repo
+            export HOME=/home/ec2-user
+            cd $HOME
+
+            # clone terraform
+            wget https://ibm-aws-immersion-day.s3.us-east-2.amazonaws.com/cloudformation/cp4i/cp4i-main.zip
+            unzip cp4i-main.zip
+
+            cd $HOME/cp4i-main/managed-openshift/aws/terraform/
+
+            echo "region=\"${AWS::Region}\"" >> terraform_vars.tfvars
+            echo "tenancy=\"${Tenancy}\"" >> terraform_vars.tfvars
+            echo "access_key_id=\"${CPIIAMUserAccessKey}\"" >> terraform_vars.tfvars
+            echo "secret_access_key=\"${CPIIAMUserSecret}\"" >> terraform_vars.tfvars
+            echo "new_or_existing_vpc_subnet=\"exist\"" >> terraform_vars.tfvars
+
+            echo "vpc_id=\"${VPCID}\"" >> terraform_vars.tfvars
+            echo "public_subnet1_id=\"${PublicSubnet1ID}\"" >> terraform_vars.tfvars
+            echo "public_subnet2_id=\"${PublicSubnet2ID}\"" >> terraform_vars.tfvars
+            echo "public_subnet3_id=\"${PublicSubnet3ID}\"" >> terraform_vars.tfvars
+            echo "private_subnet1_id=\"${PrivateSubnet1ID}\"" >> terraform_vars.tfvars
+            echo "private_subnet2_id=\"${PrivateSubnet2ID}\"" >> terraform_vars.tfvars
+            echo "private_subnet3_id=\"${PrivateSubnet3ID}\"" >> terraform_vars.tfvars
+
+            echo "openshift_version=\"${OpenshiftVersion}\"" >> terraform_vars.tfvars
+            echo "cluster_name=\"${ClusterName}\"" >> terraform_vars.tfvars
+            echo "rosa_token=\"${RosaToken}\"" >> terraform_vars.tfvars
+            echo "worker_machine_type=\"${WorkerInstanceType}\"" >> terraform_vars.tfvars
+            echo "worker_machine_count=\"${WorkerMachineCount}\"" >> terraform_vars.tfvars
+            echo "private_cluster=\"${PrivateCluster}\"" >> terraform_vars.tfvars
+            echo "cluster_network_cidr=\"${ClusterNetworkCIDR}\"" >> terraform_vars.tfvars
+            echo "cluster_network_host_prefix=\"${ClusterNetworkHostPrefix}\"" >> terraform_vars.tfvars
+            echo "service_network_cidr=\"${ServiceNetworkCIDR}\"" >> terraform_vars.tfvars
+
+            echo "az=\"${AZ}\"" >> terraform_vars.tfvars
+            echo "availability_zone1=\"${AvailabilityZone1}\"" >> terraform_vars.tfvars
+            echo "availability_zone2=\"${AvailabilityZone2}\"" >> terraform_vars.tfvars
+            echo "availability_zone3=\"${AvailabilityZone3}\"" >> terraform_vars.tfvars
+            echo "enable_fips=\"${EnableFips}\"" >> terraform_vars.tfvars
+
+            echo "ocs={enable = "${EnableOCS}", ami_id = "\"${AMI_ID}\"", dedicated_node_instance_type = "\"${OCSInstanceType}\""}" >> terraform_vars.tfvars
+            echo "efs={enable = "${EnableEFS}"}" >> terraform_vars.tfvars
+            echo "cpi={enable = true}" >> terraform_vars.tfvars
+
+            echo "cpi_entitlement_key=\"${CpiEntitlementKey}\"" >> terraform_vars.tfvars
+            echo "cpi_accept_license=\"${CpiAcceptLicense}\"" >> terraform_vars.tfvars
+            echo "cpi_version=\"${CpiVersion}\"" >> terraform_vars.tfvars
+
+            export TF_LOG=DEBUG
+            export TF_LOG_PATH=/home/ec2-user/cp4i/managed-openshift/aws/terraform/.trace.log
+
+            terraform init -input=false
+            terraform plan -out=tfplan -var-file=terraform_vars.tfvars
+            #terraform apply -input=false tfplan
+
+            ecode=$?
+
+            /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
+          -
+            AMI_ID: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", COREOSAmiId]
+            CPIIAMUserAccessKey: !Ref CPIIAMUserAccessKey 
+            CPIIAMUserSecret: !GetAtt CPIIAMUserAccessKey.SecretAccessKey
+            LicenseAgreement: !If [ AcceptLicense, 'accept', 'reject']
+            AZ: !If [ 3AZCondition , 'multi_zone', 'single_zone']
+            AvailabilityZone1: !Select [0, !Ref AvailabilityZones]
+            AvailabilityZone2: !If [ 3AZCondition, !Select [1, !Ref AvailabilityZones], ""]
+            AvailabilityZone3: !If [ 3AZCondition, !Select [2, !Ref AvailabilityZones], ""]
+            EnableOCS: !If [ OCSCondition, 'true', 'false' ]
+            EnableEFS: !If [ EfsCondition, 'true', 'false' ]
+
+  CleanUpLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import cfnresponse
+          import os
+          import traceback
+          import time
+          def handler(event, context):
+              responseData = {}
+              try:
+                  print("event_obj:",json.dumps(event))
+                  print(event['RequestType'])
+                  if event['RequestType'] == 'Delete':
+                    print("Run unsubscribe script")
+                    ssm = boto3.client('ssm',region_name=os.environ['Region'])
+                    instanceID = os.environ['BootNode']
+                    storage = os.environ['Storage']
+                    stackname = os.environ['StackName']
+                    clustername = os.environ['ClusterName']
+                    print(instanceID)
+                    response = ssm.send_command(Targets=[{"Key":"instanceids","Values":[instanceID]}],
+                            DocumentName="AWS-RunShellScript",
+                            Parameters={"commands":["/home/ec2-user/destroy.sh %s %s" %(stackname) %(clustername)],
+                                        "executionTimeout":["1200"],
+                                        "workingDirectory":["/home/ec2-user"]},
+                            Comment="Execute script in uninstall openshift",
+                            TimeoutSeconds=120)
+                    print(response)
+                    current_status = "WAIT"
+                    final_status = "READY"
+                    parameterName = stackname+"_CleanupStatus"           
+                    response = ssm.put_parameter(Name=parameterName,
+                           Description="Waiting for CleanupStatus to be READY",
+                           Value=current_status,
+                           Type='String',
+                           Overwrite=True)        
+                    print(response)    
+                    while(current_status!=final_status):
+                      time.sleep(30) 
+                      response = ssm.get_parameter(Name=parameterName)
+                      parameter = response.get('Parameter')
+                      current_status = parameter.get('Value')
+                      print(current_status)
+                    ssm.delete_parameter(Name=parameterName)    
+              except Exception as e:
+                print(e)
+                traceback.print_exc()
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, '')
+      Environment:
+        Variables:
+          Region: !Ref AWS::Region
+          BootNode: !Ref BootnodeInstance
+          Storage: !Ref StorageType
+          StackName: !Ref AWS::StackName
+          ClusterName: !Ref ClusterName
+      Handler: index.handler
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
+      Runtime: python3.8
+      Timeout: 600
+             
+  Cleanup :
+    Type: Custom::Cleanup
+    Properties:
+      DependsOn: BootnodeInstance
+      ServiceToken: !GetAtt 'CleanUpLambda.Arn'
+ 
+  ICPDInstallationCompletedHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle  
+
+  ICPDInstallationCompleted:
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Count: 1
+      Handle: !Ref ICPDInstallationCompletedHandle
+      Timeout: '40000'  
