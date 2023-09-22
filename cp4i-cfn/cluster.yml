@@ -52,6 +52,7 @@ Metadata:
         Parameters:
           - CpiAcceptLicense
           - CpiVersion
+          - CpiInstanceNamespace
 Parameters:
   Tenancy:
     Description: >-
@@ -64,31 +65,31 @@ Parameters:
   VPCID:
     Description: The ID of your existing VPC for deployment.
     Type: AWS::EC2::VPC::Id
-    Default: vpc-032953df60
+    Default: vpc-3738f32953df603f
   PrivateSubnet1ID:
     Description: The ID of the private subnet in Availability Zone 1 for the workload (e.g., subnet-a0246dcd).
     Type: String
-    Default: "subnet-0d610d4db25f"
+    Default: "subnet-5c7d2d610d4db25f"
   PrivateSubnet2ID:
     Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd).
     Type: String
-    Default: "subnet-0698e9b4c41"
+    Default: "subnet-15bca0698e9b4c41"
   PrivateSubnet3ID:
     Description: The ID of the private subnet in Availability Zone 3 for the workload (e.g., subnet-b1f4a2cd).
     Type: String
-    Default: "subnet-03597324708"
+    Default: "subnet-3ed7835a97324708"
   PublicSubnet1ID:
     Description: The ID of the public subnet in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac).
     Type: String
-    Default: "subnet-661bea107d1"
+    Default: "subnet-68bc9661bea107d1"
   PublicSubnet2ID:
     Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e).
     Type: String
-    Default: "subnet-03f88f7c2461"
+    Default: "subnet-5a6043f88f7c2461"
   PublicSubnet3ID:
     Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e).
     Type: String
-    Default: "subnet-0a31243f87f9"
+    Default: "subnet-a3646c21243f87f9"
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches.
@@ -226,6 +227,11 @@ Parameters:
     Description: CPI version to be installed on ROSA
     Type: String
     Default: "2022.2.1"
+  CpiInstanceNamespace:
+    Description: CPI instance namespace
+    Type: String
+    Default: "cp4i"
+
 
 Mappings:
   AWSAMIRegionMap:
@@ -580,13 +586,14 @@ Resources:
             echo "cpi_entitlement_key=\"${CpiEntitlementKey}\"" >> terraform_vars.tfvars
             echo "cpi_accept_license=\"${CpiAcceptLicense}\"" >> terraform_vars.tfvars
             echo "cpi_version=\"${CpiVersion}\"" >> terraform_vars.tfvars
+            echo "cpi_instance_namespace=\"${CpiInstanceNamespace}\"" >> terraform_vars.tfvars
 
             export TF_LOG=DEBUG
             export TF_LOG_PATH=/home/ec2-user/cp4i/managed-openshift/aws/terraform/.trace.log
 
             terraform init -input=false
             terraform plan -out=tfplan -var-file=terraform_vars.tfvars
-            #terraform apply -input=false tfplan
+            terraform apply -input=false tfplan
 
             ecode=$?
 
