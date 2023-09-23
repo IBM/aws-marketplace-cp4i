@@ -429,10 +429,11 @@ Resources:
               content: !Sub |
                 echo "$1 - Destroy CFN stack"
                 echo "$2 - Destroy ROSA cluster"
-                cd /home/ec2-user/cp4i/managed-openshift/aws/terraform/
-                ./installer-files/rosa delete cluster --cluster=$2 --watch >> ./destroy.log
-                ./installer-files/rosa init --delete >> ./destroy.log
-                terraform destroy -var-file=terraform_vars.tfvars -auto-approve >> ./destroy.log
+                cd /home/ec2-user/cp4i-main/managed-openshift/aws/terraform/
+                ./installer-files/rosa delete cluster --cluster=$2 --watch || true
+                ./installer-files/rosa init --delete || true
+                terraform destroy -var-file=terraform_vars.tfvars -auto-approve
+                sleep 300
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
               mode: '000777'
               owner: root
@@ -589,7 +590,7 @@ Resources:
             echo "cpi_instance_namespace=\"${CpiInstanceNamespace}\"" >> terraform_vars.tfvars
 
             export TF_LOG=DEBUG
-            export TF_LOG_PATH=/home/ec2-user/cp4i/managed-openshift/aws/terraform/.trace.log
+            export TF_LOG_PATH=/home/ec2-user/cp4i-main/managed-openshift/aws/terraform/.trace.log
 
             terraform init -input=false
             terraform plan -out=tfplan -var-file=terraform_vars.tfvars
@@ -636,7 +637,7 @@ Resources:
                     print(instanceID)
                     response = ssm.send_command(Targets=[{"Key":"instanceids","Values":[instanceID]}],
                             DocumentName="AWS-RunShellScript",
-                            Parameters={"commands":["/home/ec2-user/destroy.sh %s %s" %(stackname) %(clustername)],
+                            Parameters={"commands":["/home/ec2-user/destroy.sh %s %s" %(stackname,clustername)],
                                         "executionTimeout":["1200"],
                                         "workingDirectory":["/home/ec2-user"]},
                             Comment="Execute script in uninstall openshift",
