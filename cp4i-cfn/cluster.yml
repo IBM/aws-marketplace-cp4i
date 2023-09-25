@@ -430,11 +430,11 @@ Resources:
                 echo "$1 - Destroy CFN stack"
                 echo "$2 - Destroy ROSA cluster"
                 cd /home/ec2-user/cp4i-main/managed-openshift/aws/terraform/
-                ./installer-files/rosa delete cluster --cluster=$2 --watch -y || true
-                ./installer-files/rosa init --delete || true
+                #./installer-files/rosa delete cluster --cluster=$2 --watch -y | tee /home/ec2-user/destroy.log
+                #./installer-files/rosa init --delete | tee /home/ec2-user/destroy.log
                 # ./installer-files/rosa delete operator-roles -c $2 --mode auto || true
                 # ./installer-files/rosa delete oidc-provider -c $2 --mode auto || true
-                terraform destroy -var-file=terraform_vars.tfvars -auto-approve
+                terraform destroy -var-file=terraform_vars.tfvars -lock=false -auto-approve | tee /home/ec2-user/destroy.log
                 sleep 300
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
               mode: '000777'
@@ -599,7 +599,8 @@ Resources:
             terraform apply -input=false tfplan
 
             ecode=$?
-
+            chown -R ec2-user:ec2-user /home/ec2-user/cp4i-main || true
+            chown -R ec2-user:ec2-user /home/ec2-user/destroy.sh || true
             /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
           -
             AMI_ID: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", COREOSAmiId]
