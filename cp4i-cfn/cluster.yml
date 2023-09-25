@@ -430,8 +430,10 @@ Resources:
                 echo "$1 - Destroy CFN stack"
                 echo "$2 - Destroy ROSA cluster"
                 cd /home/ec2-user/cp4i-main/managed-openshift/aws/terraform/
-                ./installer-files/rosa delete cluster --cluster=$2 --watch || true
+                ./installer-files/rosa delete cluster --cluster=$2 --watch -y || true
                 ./installer-files/rosa init --delete || true
+                # ./installer-files/rosa delete operator-roles -c $2 --mode auto || true
+                # ./installer-files/rosa delete oidc-provider -c $2 --mode auto || true
                 terraform destroy -var-file=terraform_vars.tfvars -auto-approve
                 sleep 300
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
