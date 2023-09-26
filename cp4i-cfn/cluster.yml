@@ -430,11 +430,14 @@ Resources:
                 echo "$1 - Destroy CFN stack"
                 echo "$2 - Destroy ROSA cluster"
                 cd /home/ec2-user/cp4i-main/managed-openshift/aws/terraform/
-                #./installer-files/rosa delete cluster --cluster=$2 --watch -y | tee /home/ec2-user/destroy.log
-                #./installer-files/rosa init --delete | tee /home/ec2-user/destroy.log
-                # ./installer-files/rosa delete operator-roles -c $2 --mode auto || true
-                # ./installer-files/rosa delete oidc-provider -c $2 --mode auto || true
-                terraform destroy -var-file=terraform_vars.tfvars -lock=false -auto-approve | tee /home/ec2-user/destroy.log
+                export AWS_REGION=${AWS::Region}
+                export CLUSTER_ID=$(./installer-files/rosa describe cluster --cluster=$2 --region=$AWS_REGION -o json | jq -r .id)
+                echo "CLUSTER_ID.."$CLUSTER_ID | tee /home/ec2-user/destroy.log
+                ./installer-files/rosa delete cluster --cluster=$2 --watch -y | tee /home/ec2-user/destroy.log
+                ./installer-files/rosa init --delete | tee /home/ec2-user/destroy.log
+                ./installer-files/rosa delete operator-roles -c $CLUSTER_ID --mode auto | tee /home/ec2-user/destroy.log
+                ./installer-files/rosa delete oidc-provider -c $CLUSTER_ID --mode auto | tee /home/ec2-user/destroy.log
+                terraform destroy -var-file=terraform_vars.tfvars -auto-approve | tee /home/ec2-user/destroy.log
                 sleep 300
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
               mode: '000777'
