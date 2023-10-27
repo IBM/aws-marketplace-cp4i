@@ -12,7 +12,6 @@ Metadata:
           default: Networking
         Parameters:
           - VPCID
-          - VPCCIDR
           - PrivateSubnet1ID
           - PrivateSubnet2ID
           - PrivateSubnet3ID
@@ -20,6 +19,7 @@ Metadata:
           - PublicSubnet2ID
           - PublicSubnet3ID
           - BootNodeAccessCIDR
+          - MachineCIDR
           - ClusterNetworkCIDR
           - ClusterNetworkHostPrefix
           - ServiceNetworkCIDR
@@ -52,7 +52,9 @@ Metadata:
         Parameters:
           - CpiAcceptLicense
           - CpiVersion
+          - CpiNamespace
           - CpiInstanceNamespace
+          - CpiLicenseId
 Parameters:
   Tenancy:
     Description: >-
@@ -65,31 +67,31 @@ Parameters:
   VPCID:
     Description: The ID of your existing VPC for deployment.
     Type: AWS::EC2::VPC::Id
-    Default: vpc-3738f32953df603f
+    Default: vpc-38f32953df603f
   PrivateSubnet1ID:
-    Description: The ID of the private subnet in Availability Zone 1 for the workload (e.g., subnet-a0246dcd).
+    Description: The ID of the private subnet in Availability Zone a for the workload (e.g., subnet-a0246dcd).
     Type: String
-    Default: "subnet-5c7d2d610d4db25f"
+    Default: "subnet-7d2d610d4db25f"
   PrivateSubnet2ID:
-    Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd).
+    Description: The ID of the private subnet in Availability Zone b for the workload (e.g., subnet-b1f432cd).
     Type: String
-    Default: "subnet-15bca0698e9b4c41"
+    Default: "subnet-bca0698e9b4c41"
   PrivateSubnet3ID:
-    Description: The ID of the private subnet in Availability Zone 3 for the workload (e.g., subnet-b1f4a2cd).
+    Description: The ID of the private subnet in Availability Zone c for the workload (e.g., subnet-b1f4a2cd).
     Type: String
-    Default: "subnet-3ed7835a97324708"
+    Default: "subnet-d7835a97324708"
   PublicSubnet1ID:
-    Description: The ID of the public subnet in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac).
+    Description: The ID of the public subnet in Availability Zone a for the ELB load balancer (e.g., subnet-9bc642ac).
     Type: String
-    Default: "subnet-68bc9661bea107d1"
+    Default: "subnet-bc9661bea107d1"
   PublicSubnet2ID:
-    Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e).
+    Description: The ID of the public subnet in Availability Zone b for the ELB load balancer (e.g., subnet-e3246d8e).
     Type: String
-    Default: "subnet-5a6043f88f7c2461"
+    Default: "subnet-6043f88f7c2461"
   PublicSubnet3ID:
-    Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e).
+    Description: The ID of the public subnet in Availability Zone c for the ELB load balancer (e.g., subnet-e324ad8e).
     Type: String
-    Default: "subnet-a3646c21243f87f9"
+    Default: "subnet-646c21243f87f9"
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches.
@@ -101,6 +103,12 @@ Parameters:
     Description: The CIDR IP range that is permitted to access boot node instance. We recommend that you set this value to a trusted IP range. The value `0.0.0.0/0` permits all IP addresses to access. Additional values can be added post-deployment from the Amazon EC2 console.
     Type: String
     Default: 0.0.0.0/0
+  MachineCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The Cluster Network CIDR IP range that is used as IP address pools for pods.  
+    Type: String
+    Default: 10.0.0.0/16 
   ClusterNetworkCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -176,7 +184,7 @@ Parameters:
   WorkerMachineCount:
     Description: The desired capacity for the ROSA worker inodes. Minimum of 3 nodes required for multi-zone deployment. It should multiple of 3.
     Type: Number
-    Default: 6
+    Default: 3
   PrivateCluster:  
     Description: To Deploy a Private cluster select true and false for Public cluster
     Type: String
@@ -208,7 +216,6 @@ Parameters:
     Type: String
     AllowedValues:
       - "efs"
-      - "ocs"
     Default: "efs"
   CpiEntitlementKey:
     Description: The CPI entitlement key to access IBM Container Registry.
@@ -223,15 +230,18 @@ Parameters:
       - "accept"
       - "reject"
     ConstraintDescription: must answer 'accept'
+  CpiNamespace:
+    Description: CP4I namespace
+    Type: String
+    Default: cp4i    
   CpiVersion:
     Description: CPI version to be installed on ROSA
     Type: String
     Default: "2022.2.1"
-  CpiInstanceNamespace:
-    Description: CPI instance namespace
+  CpiLicenseId:
+    Description: CPI license id
     Type: String
-    Default: "cp4i"
-
+    Default: "L-RJON-CD3JKX"
 
 Mappings:
   AWSAMIRegionMap:
@@ -303,15 +313,6 @@ Conditions:
   EfsCondition: !Equals [!Ref StorageType, 'efs']
 
 Resources:
-  CPIIAMUser:
-    Type: 'AWS::IAM::User'
-    Properties:
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
-  CPIIAMUserAccessKey:
-    Type: 'AWS::IAM::AccessKey'
-    Properties:
-      UserName: !Ref CPIIAMUser
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -360,6 +361,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        - arn:aws:iam::aws:policy/AdministratorAccess
       Policies:
       - PolicyName: bootnode-policy
         PolicyDocument:
@@ -427,20 +429,17 @@ Resources:
               group: root
             /home/ec2-user/destroy.sh:
               content: !Sub |
-                echo "$1 - Destroy CFN stack"
-                echo "$2 - Destroy ROSA cluster"
-                cd /home/ec2-user/cp4i-main/managed-openshift/aws/terraform/
-                export AWS_REGION=${AWS::Region}
-                export CLUSTER_ID=$(./installer-files/rosa describe cluster --cluster=$2 --region=$AWS_REGION -o json | jq -r .id)
-                echo "CLUSTER_ID.."$CLUSTER_ID | tee /home/ec2-user/destroy.log
-                ./installer-files/rosa delete cluster --cluster=$2 --watch -y | tee /home/ec2-user/destroy.log
-                ./installer-files/rosa init --delete | tee /home/ec2-user/destroy.log
-                ./installer-files/rosa delete operator-roles -c $CLUSTER_ID --mode auto | tee /home/ec2-user/destroy.log
-                ./installer-files/rosa delete oidc-provider -c $CLUSTER_ID --mode auto | tee /home/ec2-user/destroy.log
-                terraform destroy -var-file=terraform_vars.tfvars -auto-approve | tee /home/ec2-user/destroy.log
-                sleep 300
+                echo "StackName $1, ClusterName $2, Region $3, RosaToken $4"
+                export HOME=/home/ec2-user
+                cd /home/ec2-user
+                ./setup-efs.sh --base-path=/home/ec2-user --operation=destroy >> /home/ec2-user/destroy.log
+                ./install-rosa.sh --base-path=/home/ec2-user \
+                  --operation=destroy \
+                  --cluster-name=$2 \
+                  --region=$3 \
+                  --rosa-token=$4 >> /home/ec2-user/destroy.log
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
-              mode: '000777'
+              mode: '000755'
               owner: root
               group: root
             /root/.aws/config:
@@ -450,19 +449,14 @@ Resources:
               mode: '000600'
               owner: root
               group: root
-            /root/.aws/credentials:
-              content: 
-                !Sub 
-                - |  
-                  [default]
-                  aws_access_key_id=${CPIIAMUserAccessKey}
-                  aws_secret_access_key=${CPIIAMUserSecret}
-                - 
-                  CPIIAMUserAccessKey: !Ref CPIIAMUserAccessKey 
-                  CPIIAMUserSecret: !GetAtt CPIIAMUserAccessKey.SecretAccessKey
+            /home/ec2-user/.aws/config:
+              content: !Sub |
+                [default]
+                region=${AWS::Region}
               mode: '000600'
-              owner: root
-              group: root
+              owner: ec2-user
+              group: ec2-user
+
     Properties:
       KeyName: !Ref 'KeyPairName'
       ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", BootNodeAmiId]
@@ -494,7 +488,7 @@ Resources:
 
             # Install utils
             yum update
-            yum install -y git podman wget jq python39 unzip yum-utils
+            yum install -y git podman wget jq python39 unzip yum-utils gettext
             yum install -y yum-utils
             yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
             yum -y install terraform
@@ -504,6 +498,7 @@ Resources:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install &> /var/log/userdata.awscli_install.log
+            cp /usr/local/bin/aws /usr/bin/
 
             git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
             sed -i "s/aws-cfn-bootstrap-latest.tar.gz/aws-cfn-bootstrap-py3-latest.tar.gz/g" /quickstart-linux-utilities/quickstart-cfn-tools.source 
@@ -549,66 +544,76 @@ Resources:
             export HOME=/home/ec2-user
             cd $HOME
 
-            # clone terraform
-            wget https://ibm-aws-immersion-day.s3.us-east-2.amazonaws.com/cloudformation/cp4i/cp4i-main.zip
-            unzip cp4i-main.zip
+            #clone scripts
+            wget https://github.com/IBM/aws-marketplace-cp4i/blob/master/cp4i-cfn/scripts/deploy-cp4i.sh
+            wget https://github.com/IBM/aws-marketplace-cp4i/blob/master/cp4i-cfn/scripts/install-rosa.sh
+            wget https://github.com/IBM/aws-marketplace-cp4i/blob/master/cp4i-cfn/scripts/setup-efs.sh
+            
+            chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh
 
-            cd $HOME/cp4i-main/managed-openshift/aws/terraform/
+            if [ ${AZ} == "multi_zone"  ]; then
+              MULTI_AZ="true"
+              ROSA_SUBNETS=${PrivateSubnet1ID},${PrivateSubnet2ID},${PrivateSubnet3ID},${PublicSubnet1ID},${PublicSubnet2ID},${PublicSubnet3ID}
+              EFS_SUBNETS=${PrivateSubnet1ID},${PrivateSubnet2ID},${PrivateSubnet3ID}
+            else 
+              MULTI_AZ="false"
+              ROSA_SUBNETS=${PrivateSubnet1ID},${PublicSubnet1ID}
+              EFS_SUBNETS=${PrivateSubnet1ID}
+            fi
 
-            echo "region=\"${AWS::Region}\"" >> terraform_vars.tfvars
-            echo "tenancy=\"${Tenancy}\"" >> terraform_vars.tfvars
-            echo "access_key_id=\"${CPIIAMUserAccessKey}\"" >> terraform_vars.tfvars
-            echo "secret_access_key=\"${CPIIAMUserSecret}\"" >> terraform_vars.tfvars
-            echo "new_or_existing_vpc_subnet=\"exist\"" >> terraform_vars.tfvars
-
-            echo "vpc_id=\"${VPCID}\"" >> terraform_vars.tfvars
-            echo "public_subnet1_id=\"${PublicSubnet1ID}\"" >> terraform_vars.tfvars
-            echo "public_subnet2_id=\"${PublicSubnet2ID}\"" >> terraform_vars.tfvars
-            echo "public_subnet3_id=\"${PublicSubnet3ID}\"" >> terraform_vars.tfvars
-            echo "private_subnet1_id=\"${PrivateSubnet1ID}\"" >> terraform_vars.tfvars
-            echo "private_subnet2_id=\"${PrivateSubnet2ID}\"" >> terraform_vars.tfvars
-            echo "private_subnet3_id=\"${PrivateSubnet3ID}\"" >> terraform_vars.tfvars
-
-            echo "openshift_version=\"${OpenshiftVersion}\"" >> terraform_vars.tfvars
-            echo "cluster_name=\"${ClusterName}\"" >> terraform_vars.tfvars
-            echo "rosa_token=\"${RosaToken}\"" >> terraform_vars.tfvars
-            echo "worker_machine_type=\"${WorkerInstanceType}\"" >> terraform_vars.tfvars
-            echo "worker_machine_count=\"${WorkerMachineCount}\"" >> terraform_vars.tfvars
-            echo "private_cluster=\"${PrivateCluster}\"" >> terraform_vars.tfvars
-            echo "cluster_network_cidr=\"${ClusterNetworkCIDR}\"" >> terraform_vars.tfvars
-            echo "cluster_network_host_prefix=\"${ClusterNetworkHostPrefix}\"" >> terraform_vars.tfvars
-            echo "service_network_cidr=\"${ServiceNetworkCIDR}\"" >> terraform_vars.tfvars
-
-            echo "az=\"${AZ}\"" >> terraform_vars.tfvars
-            echo "availability_zone1=\"${AvailabilityZone1}\"" >> terraform_vars.tfvars
-            echo "availability_zone2=\"${AvailabilityZone2}\"" >> terraform_vars.tfvars
-            echo "availability_zone3=\"${AvailabilityZone3}\"" >> terraform_vars.tfvars
-            echo "enable_fips=\"${EnableFips}\"" >> terraform_vars.tfvars
-
-            echo "ocs={enable = "${EnableOCS}", ami_id = "\"${AMI_ID}\"", dedicated_node_instance_type = "\"${OCSInstanceType}\""}" >> terraform_vars.tfvars
-            echo "efs={enable = "${EnableEFS}"}" >> terraform_vars.tfvars
-            echo "cpi={enable = true}" >> terraform_vars.tfvars
-
-            echo "cpi_entitlement_key=\"${CpiEntitlementKey}\"" >> terraform_vars.tfvars
-            echo "cpi_accept_license=\"${CpiAcceptLicense}\"" >> terraform_vars.tfvars
-            echo "cpi_version=\"${CpiVersion}\"" >> terraform_vars.tfvars
-            echo "cpi_instance_namespace=\"${CpiInstanceNamespace}\"" >> terraform_vars.tfvars
-
-            export TF_LOG=DEBUG
-            export TF_LOG_PATH=/home/ec2-user/cp4i-main/managed-openshift/aws/terraform/.trace.log
-
-            terraform init -input=false
-            terraform plan -out=tfplan -var-file=terraform_vars.tfvars
-            terraform apply -input=false tfplan
+            # create ROSA cluster
+            /bin/bash $HOME/install-rosa.sh --base-path=$HOME --operation=create --cluster-name=${ClusterName} \
+              --compute-machine-type=${WorkerInstanceType} \
+              --replicas=${WorkerMachineCount} \
+              --region=$AWS_REGION \
+              --machine-cidr=${MachineCIDR} \
+              --service-cidr=${ServiceNetworkCIDR} \
+              --pod-cidr=${ClusterNetworkCIDR} \
+              --host-prefix=${ClusterNetworkHostPrefix} \
+              --private=${PrivateCluster} \
+              --multi-az=$MULTI_AZ \
+              --version=${OpenshiftVersion} \
+              --subnets=$ROSA_SUBNETS \
+              --fips=${EnableFips} \
+              --rosa-token=${RosaToken}
 
             ecode=$?
-            chown -R ec2-user:ec2-user /home/ec2-user/cp4i-main || true
-            chown -R ec2-user:ec2-user /home/ec2-user/destroy.sh || true
+            if [ $ecode -gt 0 ]; then
+              echo "ROSA cluster creation is failed"
+              /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
+              exit 1;
+            else
+              echo "sleeping for 15 mins"
+              sleep 900
+            fi
+
+            # setup EFS
+            if [ ${StorageType} == "efs" ]; then
+              /bin/bash $HOME/setup-efs.sh --base-path=$HOME \
+              --operation=create \
+              --subnets=$EFS_SUBNETS
+            fi
+
+            ecode=$?
+            if [ $ecode -gt 0 ]; then
+              echo "ROSA storage creation is failed"
+              /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
+              exit 1;
+            fi
+
+            # deploy CP4I
+            /bin/bash $HOME/deploy-cp4i.sh --base-path=$HOME \
+              --license=${CpiAcceptLicense} \
+              --ibm-entitlement-key=${CpiEntitlementKey} \
+              --namespace=${CpiNamespace} \
+              --intance-namespace=${CpiNamespace} \
+              --version=${CpiVersion} \
+              --license-id=${CpiLicenseId}
+
+            ecode=$?
             /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
           -
             AMI_ID: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", COREOSAmiId]
-            CPIIAMUserAccessKey: !Ref CPIIAMUserAccessKey 
-            CPIIAMUserSecret: !GetAtt CPIIAMUserAccessKey.SecretAccessKey
             LicenseAgreement: !If [ AcceptLicense, 'accept', 'reject']
             AZ: !If [ 3AZCondition , 'multi_zone', 'single_zone']
             AvailabilityZone1: !Select [0, !Ref AvailabilityZones]
@@ -640,10 +645,12 @@ Resources:
                     storage = os.environ['Storage']
                     stackname = os.environ['StackName']
                     clustername = os.environ['ClusterName']
+                    region = os.environ['Region']
+                    rosatoken = os.environ['RosaToken']
                     print(instanceID)
                     response = ssm.send_command(Targets=[{"Key":"instanceids","Values":[instanceID]}],
                             DocumentName="AWS-RunShellScript",
-                            Parameters={"commands":["/home/ec2-user/destroy.sh %s %s" %(stackname,clustername)],
+                            Parameters={"commands":["/home/ec2-user/destroy.sh %s %s %s %s" %(stackname, clustername, region, rosatoken)],
                                         "executionTimeout":["1200"],
                                         "workingDirectory":["/home/ec2-user"]},
                             Comment="Execute script in uninstall openshift",
@@ -676,6 +683,7 @@ Resources:
           Storage: !Ref StorageType
           StackName: !Ref AWS::StackName
           ClusterName: !Ref ClusterName
+          RosaToken: !Ref RosaToken
       Handler: index.handler
       Role: !GetAtt 'LambdaExecutionRole.Arn'
       Runtime: python3.8
