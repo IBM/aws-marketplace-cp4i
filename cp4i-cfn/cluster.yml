@@ -545,10 +545,9 @@ Resources:
             cd $HOME
 
             #clone scripts
-            wget https://github.com/IBM/aws-marketplace-cp4i/blob/master/cp4i-cfn/scripts/deploy-cp4i.sh
-            wget https://github.com/IBM/aws-marketplace-cp4i/blob/master/cp4i-cfn/scripts/install-rosa.sh
-            wget https://github.com/IBM/aws-marketplace-cp4i/blob/master/cp4i-cfn/scripts/setup-efs.sh
-            
+            git clone https://github.com/IBM/aws-marketplace-cp4i.git
+            cp ./aws-marketplace-cp4i/cp4i-cfn/scripts/* $HOME/
+            rm -rf $HOME/aws-marketplace-cp4i/
             chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh
 
             if [ ${AZ} == "multi_zone"  ]; then
