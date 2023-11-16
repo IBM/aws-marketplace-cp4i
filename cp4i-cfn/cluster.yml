@@ -127,7 +127,7 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Openshift Version
     Type: String
-    Default: "4.12.15"
+    Default: "4.12.30"
   ClusterName:
     Default: "cp4irosa"
     Description: Custom cluster name for kubernetes.io/cluster/tags.
@@ -247,55 +247,38 @@ Mappings:
   AWSAMIRegionMap:
     us-east-1:
       BootNodeAmiId: ami-06640050dc3f556bb
-      COREOSAmiId: ami-0b35795bcab04ee70
     us-east-2:
       BootNodeAmiId: ami-092b43193629811af
-      COREOSAmiId: ami-0c17b13bb8b268411
     us-west-1:
       BootNodeAmiId: ami-0186e3fec9b0283ee
-      COREOSAmiId: ami-004de02e4e2bba5f2
     us-west-2:
       BootNodeAmiId: ami-08970fb2e5767e3b8
-      COREOSAmiId: ami-0237df7fc4ba6a5cc
     ap-south-1:
       BootNodeAmiId: ami-05c8ca4485f8b138a
-      COREOSAmiId: ami-02b81ab6d01174430
     ap-northeast-3:
       BootNodeAmiId: ami-044921b7897a7e0da
-      COREOSAmiId: ami-03450c8fc4ff0f7bd
     ap-northeast-2:
       BootNodeAmiId: ami-06c568b08b5a431d5
-      COREOSAmiId: ami-087c3504f536820f8
     ap-southeast-1:
       BootNodeAmiId: ami-051f0947e420652a9
-      COREOSAmiId: ami-099b3006ba35122c6
     ap-southeast-2:
       BootNodeAmiId: ami-0808460885ff81045
-      COREOSAmiId: ami-04d9e06d3edd4b78c
     ap-northeast-1:
       BootNodeAmiId: ami-0f903fb156f24adbf
-      COREOSAmiId: ami-04a04d42202f5dffb
     ca-central-1:
       BootNodeAmiId: ami-0c3d3a230b9668c02
-      COREOSAmiId: ami-0712dffd5af06d6a0
     eu-central-1:
       BootNodeAmiId: ami-0e7e134863fac4946
-      COREOSAmiId: ami-0b911f8bcf1f05a47
     eu-west-1:
       BootNodeAmiId: ami-0f0f1c02e5e4d9d9f
-      COREOSAmiId: ami-0cd860942047eaf85
     eu-west-2:
       BootNodeAmiId: ami-035c5dc086849b5de
-      COREOSAmiId: ami-057df328de60ac464
     eu-west-3:
       BootNodeAmiId: ami-0460bf124812bebfa
-      COREOSAmiId: ami-0e57008c4a59dbf99
     eu-north-1:
       BootNodeAmiId: ami-06a2a41d455060f8b
-      COREOSAmiId: ami-06c6466f9944aee66
     sa-east-1:
       BootNodeAmiId: ami-0c1b8b886626f940c
-      COREOSAmiId: ami-01e07e22429c5bdef
 
 Rules: 
   LicenseAgreementRule:
@@ -612,7 +595,6 @@ Resources:
             ecode=$?
             /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
           -
-            AMI_ID: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", COREOSAmiId]
             LicenseAgreement: !If [ AcceptLicense, 'accept', 'reject']
             AZ: !If [ 3AZCondition , 'multi_zone', 'single_zone']
             AvailabilityZone1: !Select [0, !Ref AvailabilityZones]
