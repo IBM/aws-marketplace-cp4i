@@ -532,6 +532,7 @@ Resources:
             - iam:DeletePolicyVersion
             - iam:TagPolicy
             - iam:TagOpenIDConnectProvider
+            - iam:UpdateAssumeRolePolicy
           Resource: "*"
 #          Condition:
 #            StringEquals:
