@@ -122,9 +122,9 @@ Parameters:
     AllowedPattern: ^[0-9a-z-]*$
     MaxLength: 15
   RosaToken:
-    Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account
+    Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account. Download ROSA token from https://console.redhat.com/openshift/token/show
     Type: String
-    Default: "Download ROSA token from https://console.redhat.com/openshift/token/show"
+    Default: ""
     NoEcho: 'true'
   WorkerInstanceType:
     Description: The EC2 instance type for the OpenShift worker nodes.
@@ -768,7 +768,10 @@ Resources:
             - ssm:SendCommand
             - ssm:PutParameter
             - ssm:GetParameter
-          Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+          Resource: "*"
+#            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
+#            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+#            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
 #          Condition:
 #            StringEquals:
 #              Aws:Region: !Ref AWS::Region
@@ -783,6 +786,14 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
+        - Sid: VisualEditor0 
+          Effect: Allow
+          Action:
+            - secretsmanager:PutSecretValue
+            - secretsmanager:UpdateSecret
+            - secretsmanager:GetSecretValue
+            - secretsmanager:UpdateSecret
+          Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
         - Effect: "Allow"
           Action: 
             - secretsmanager:GetSecretValue
@@ -791,6 +802,63 @@ Resources:
             StringEquals:
               aws:ResourceTag/red-hat-managed: true
 
+  OpenshiftURL:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-OpenshiftURL"
+        - ClusterName: !Ref ClusterName
+
+  ROSAAPI:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-ROSAAPI"
+        - ClusterName: !Ref ClusterName
+
+  ROSAUsername:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-Openshift-Username"
+        - ClusterName: !Ref ClusterName
+
+  ROSAPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-Openshift-Password"
+        - ClusterName: !Ref ClusterName
+
+  OCLoginCommand:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-cluster-login-command"
+        - ClusterName: !Ref ClusterName
+  # CP4I
+  CP4IURL:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-CP4I-URL"
+        - ClusterName: !Ref ClusterName
+
+  CP4IUsername:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-CP4I-Username"
+        - ClusterName: !Ref ClusterName
+
+  CP4IPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 
+        - "${ClusterName}-CP4I-Password"
+        - ClusterName: !Ref ClusterName
+  
+  # Boot node
   BootnodeInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -1101,3 +1169,29 @@ Resources:
       Count: 1
       Handle: !Ref ICPDInstallationCompletedHandle
       Timeout: '40000'  
+
+Outputs:
+  CP4IURLValue:
+    Description: CP4I login page URL.
+    Value: !Ref 'CP4IURL'
+  CP4IUsernameValue:
+    Description: CP4I login id.
+    Value: !Ref 'CP4IUsername'
+  CP4IPasswordValue:
+    Description: CP4I password.
+    Value: !Ref 'CP4IPassword'
+  OpenshiftURLValue:
+    Description: The URL for the OpenShift UI.
+    Value: !Ref 'OpenshiftURL'
+  OpenshiftApi:
+    Description: OpenShift API.
+    Value: !Ref 'ROSAAPI'
+  OpenshiftUsername:
+    Description: OpenShift Username.
+    Value: !Ref 'ROSAUsername'
+  OpenshiftPassword:
+    Description: OpenShift password.
+    Value: !Ref 'ROSAPassword'
+  Openshiftlogincommand:
+    Description: ROSA login command.
+    Value: !Ref 'OCLoginCommand'      
