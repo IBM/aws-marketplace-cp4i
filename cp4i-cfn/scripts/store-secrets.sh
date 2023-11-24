@@ -72,8 +72,8 @@ function oc_login() {
 }
 
 
-SHORT=bp:,h
-LONG=base-path:,help
+SHORT=bp:,cn:,h
+LONG=base-path:,cluster-name:,help
 OPTS=$(getopt -a -n weather --options $SHORT --longoptions $LONG -- "$@")
 
 eval set -- "$OPTS"
@@ -83,6 +83,10 @@ do
   case "$1" in
     -bp | --base-path )
       base_path="$2"
+      shift 2
+      ;;
+    -cn | --cluster-name )
+      cluster_name="$2"
       shift 2
       ;;
 
@@ -102,9 +106,6 @@ done
 
 validate_cmd_options
 
-# create installer files
-mkdir -p $base_path/installer-files
-
 export installer_workspace=$base_path/installer-files
 export cred_path=$installer_workspace/.cred
 
@@ -114,11 +115,13 @@ extract_login_cred
 # oc login
 oc_login
 
+clustername=$cluster_name
+
 openshift_url=$(oc get route --all-namespaces | grep console-openshift | awk '{print $3}')
 aws secretsmanager put-secret-value --secret-id "$clustername-OpenshiftURL" --secret-string "https://$openshift_url"
 
 rosa_api=$(awk '/https/{print $3}' $cred_path)
-aws secretsmanager put-secret-value --secret-id "$clustername-ROSAAPI" --secret-string "$rosa_api"
+aws secretsmanager put-secret-value --secret-id "$clustername-ROSAAPI" --secret-string \"$rosa_api\"
 
 rosa_username=$(awk '/https/{print $5}' $cred_path)
 aws secretsmanager put-secret-value --secret-id "$clustername-Openshift-Username" --secret-string "$rosa_username"
