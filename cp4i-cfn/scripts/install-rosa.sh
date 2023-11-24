@@ -328,6 +328,9 @@ function install_rosa_cluster() {
         ecode=$?
         echo "***** rosa cluster admin user is created *****"
 
+        
+        sleep 900
+
         # extract login credential
         extract_login_cred
 
