@@ -96,12 +96,12 @@ Parameters:
   MachineCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: The Cluster Network CIDR IP range that is used as IP address pools for machines.  
+    Description: The Cluster Network CIDR IP range that is used as IP address pools for machines (e.g., 10.0.0.0/16).
     Type: String
   ClusterNetworkCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: The Cluster Network CIDR IP range that is used as IP address pools for pods.  
+    Description: The Cluster Network CIDR IP range that is used as IP address pools for pods (e.g., 10.128.0.0/16).
     Type: String
   ClusterNetworkHostPrefix:
     Description: Cluster network host prefix.
@@ -109,7 +109,7 @@ Parameters:
     Default: 23
   ServiceNetworkCIDR: 
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Description: The service network CIDR IP range.
+    Description: The service network CIDR IP range (e.g., 172.30.0.0/16).
     Type: String
   OpenshiftVersion:
     Description: Choose Openshift Version
@@ -125,6 +125,7 @@ Parameters:
     Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account
     Type: String
     Default: "Download ROSA token from https://console.redhat.com/openshift/token/show"
+    NoEcho: 'true'
   WorkerInstanceType:
     Description: The EC2 instance type for the OpenShift worker nodes.
     ConstraintDescription: Must contain valid instance type
