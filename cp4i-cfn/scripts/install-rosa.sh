@@ -220,6 +220,66 @@ function rosa_login() {
     fi
 }
 
+# extract_login_cred
+function extract_login_cred() {
+    credfile=$(cat $cred_path)
+    
+    # read cluster_url from .cred
+    if [ -z $cluster_url ]; then
+      cluster_url=$(echo "$credfile" | grep -o 'https://[^ ]*')
+    fi
+    
+    # read cluster_username from .cred
+    if [ -z $cluster_username ]; then
+      cluster_username=$(echo "$credfile" | grep -oE -- '--username ([^ ]+)' | cut -d' ' -f2)
+    fi
+
+    # read cluster_password from .cred
+    if [ -z $cluster_password ]; then
+      cluster_password=$(echo "$credfile" | grep -oE -- '--password ([^ ]+)' | cut -d' ' -f2)
+    fi
+    
+    # read region from ec2 metadata
+    if [ -z $region ]; then
+      region=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
+    fi
+
+    echo "cluster_url: $cluster_url, cluster_username: $cluster_username, cluster_password: $cluster_password, subnets: $subnets"
+
+    aws_region=$region
+    
+    echo "***** OC credentials are extracted *****"
+}
+
+# oc login
+ocloginmaxcounter=5
+oclogincounter=0
+ocloginfailed=false
+function oc_login() {
+    echo "oc login $cluster_url --username=$cluster_username --password=$cluster_password --insecure-skip-tls-verify"
+    oc login $cluster_url --username=$cluster_username --password=$cluster_password --insecure-skip-tls-verify
+
+    if [ $? == 0 ]; then
+        echo "***** OC login is successful *****"
+        ocloginfailed=false
+    else
+      while [ $oclogincounter -lt $oclogincounter ];
+      do
+          echo "oc login failed..!!$oclogincounter"
+          sleep 30
+          oc_login
+          ocloginfailed=true
+          ((oclogincounter++))
+      done
+    fi
+   
+    echo "ocloginfailed..$ocloginfailed"
+    if $ocloginfailed; then
+      echo "***** OC login is failed after $ocloginmaxcounter attempt *****"
+      exit 1;
+    fi
+}
+
 # install rosa cluster
 function install_rosa_cluster() {
     if [ $private == "true" ]; then
@@ -268,9 +328,12 @@ function install_rosa_cluster() {
         ecode=$?
         echo "***** rosa cluster admin user is created *****"
 
-        oc_login= $(awk '/https/' $cred_path)
-        $(echo $oc_login --insecure-skip-tls-verify)
-        
+        # extract login credential
+        extract_login_cred
+
+        # oc login
+        oc_login
+
         openshift_url=$(oc get route --all-namespaces | grep console-openshift | awk '{print $3}')
         aws secretsmanager put-secret-value --secret-id "$clustername-OpenshiftURL" --secret-string "https://$openshift_url"
 
