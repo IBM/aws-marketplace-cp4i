@@ -290,8 +290,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:SendCommand
-                Resource:
-                  - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+                  - ssm:ListCommandInvocations
+                  - ssm:ListCommands
+                Resource: 
+                  - '*'
 #                Condition:
 #                  StringEquals:
 #                    Aws:Region: !Ref "AWS::Region"                    
@@ -302,7 +304,11 @@ Resources:
                   - ssm:GetParameter
                   - ssm:DeleteParameter
                 Resource:
+                  - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
+
  #               Condition:
  #                 StringEquals:
  #                   Aws:Region: !Ref "AWS::Region" 
@@ -768,10 +774,10 @@ Resources:
             - ssm:SendCommand
             - ssm:PutParameter
             - ssm:GetParameter
-          Resource: "*"
-#            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
-#            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
-#            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
+          Resource:
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
 #          Condition:
 #            StringEquals:
 #              Aws:Region: !Ref AWS::Region
@@ -1015,7 +1021,7 @@ Resources:
             git clone https://github.com/IBM/aws-marketplace-cp4i.git
             cp ./aws-marketplace-cp4i/cp4i-cfn/scripts/* $HOME/
             rm -rf $HOME/aws-marketplace-cp4i/
-            chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh
+            chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh store-secrets.sh
 
             if [ ${AZ} == "multi_zone"  ]; then
               MULTI_AZ="true"
@@ -1048,9 +1054,6 @@ Resources:
               echo "ROSA cluster creation is failed"
               /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
               exit 1;
-            else
-              echo "sleeping for 15 mins"
-              sleep 900
             fi
 
             # setup EFS
@@ -1075,6 +1078,11 @@ Resources:
               --intance-namespace=${CpiNamespace} \
               --version=${CpiVersion} \
               --license-id=${CpiLicenseId}
+            
+            ecode=$?
+            if [ $ecode -gt 0 ]; then
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} | true
+            fi
 
             ecode=$?
             /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
