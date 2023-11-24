@@ -268,6 +268,9 @@ function install_rosa_cluster() {
         ecode=$?
         echo "***** rosa cluster admin user is created *****"
 
+        oc_login= $(awk '/https/' $cred_path)
+        $(echo $oc_login --insecure-skip-tls-verify)
+        
         openshift_url=$(oc get route --all-namespaces | grep console-openshift | awk '{print $3}')
         aws ssm put-parameter --name "$clustername-OpenshiftURL" --type String --value "https://$openshift_url" --overwrite
 
