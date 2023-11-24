@@ -269,10 +269,10 @@ function install_rosa_cluster() {
         echo "***** rosa cluster admin user is created *****"
 
         openshift_url=$(oc get route --all-namespaces | grep console-openshift | awk '{print $3}')
-        aws ssm put-parameter --name "$clustername-OpenshiftURL" --type String --value "https://$openshift_url" --overwrite
+        aws secretsmanager put-secret-value --secret-id "$clustername-OpenshiftURL" --secret-string "https://$openshift_url"
 
         rosa_api=$(awk '/https/{print $3}' $cred_path)
-        aws ssm put-parameter --name "$clustername-ROSAAPI" --type String --value "$rosa_api" --overwrite
+        aws secretsmanager put-secret-value --secret-id "$clustername-ROSAAPI" --secret-string "$rosa_api"
 
         rosa_username=$(awk '/https/{print $5}' $cred_path)
         aws secretsmanager put-secret-value --secret-id "$clustername-Openshift-Username" --secret-string "$rosa_username"
