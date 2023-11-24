@@ -1010,6 +1010,6 @@ password=$(echo "$cpi_username_password_tmp" | sed -n '2p')
 aws secretsmanager put-secret-value --secret-id "${API_SERVER}-CP4I-Username" --secret-string "$username"
 aws secretsmanager put-secret-value --secret-id "${API_SERVER}-CP4I-Password" --secret-string "$password"
 
-# Store cpi url to AWS Parameter Store
+# Store cpi url to Secrets Manager (sm)
 cpi_url=$(oc get routes cpd -n $INSTANCE_NAMESPACE -o jsonpath='{.spec.host}')
-aws ssm put-parameter --name "${API_SERVER}-CP4I-URL" --type String --value "$cpi_url" --overwrite
+aws secretsmanager put-secret-value --secret-id "${API_SERVER}-CP4I-URL" --secret-string "$cpi_url"
