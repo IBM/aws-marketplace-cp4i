@@ -376,10 +376,6 @@ Resources:
             - ec2:DeleteVpcEndpoints
             - ec2:DeregisterImage
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   EC22PolicyAttachToBooNodeIamRole:
     DependsOn:
@@ -830,7 +826,6 @@ Resources:
         - "${ClusterName}-CP4I-Password"
         - ClusterName: !Ref ClusterName
   
-  # Boot node
   BootnodeInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
