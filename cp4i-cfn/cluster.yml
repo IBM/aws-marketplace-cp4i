@@ -52,7 +52,6 @@ Metadata:
           - CpiAcceptLicense
           - CpiVersion
           - CpiNamespace
-          - CpiInstanceNamespace
           - CpiLicenseId
 Parameters:
   Tenancy:
@@ -341,6 +340,7 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
 
   EC21PolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ec21-Policy
@@ -394,6 +394,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   EC22PolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ec22-Policy
@@ -438,6 +439,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   EC23PolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ec23-Policy
@@ -474,6 +476,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   ELBPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: elb-policy
@@ -492,6 +495,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   IAMPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: iam-policy
@@ -547,6 +551,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   S3PolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: s3-policy
@@ -602,6 +607,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   TagSerQPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: tag-ser-q-policy
@@ -622,6 +628,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   STSPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: sts-policy
@@ -643,6 +650,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   CWPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: cw-policy
@@ -665,6 +673,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   KMSPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: kms-policy
@@ -689,6 +698,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   TirosPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: tiros-policy
@@ -709,6 +719,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   EFSPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: efs-policy
@@ -761,6 +772,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   SSMPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ssm-policy
@@ -784,6 +796,7 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   SMPolicyAttachToBooNodeIamRole:
+    DependsOn: BootNodeIamRole  
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: sm-policy
@@ -884,6 +897,7 @@ Resources:
       VpcId: !Ref VPCID
 
   BootnodeInstance:
+    DependsOn: BootNodeIamRole  
     Type: AWS::EC2::Instance
     Metadata:
       AWS::CloudFormation::Init:
@@ -1080,8 +1094,10 @@ Resources:
               --license-id=${CpiLicenseId}
             
             ecode=$?
-            if [ $ecode -gt 0 ]; then
-              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} | true
+
+            sudo chown -R ec2-user:ec2-user /home/ec2-user
+            if [ $ecode -eq 0 ]; then
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${CpiNamespace} | true
             fi
 
             ecode=$?
