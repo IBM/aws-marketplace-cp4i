@@ -1149,25 +1149,25 @@ Resources:
 Outputs:
   CP4IURLValue:
     Description: CP4I login page URL.
-    Value: !Ref 'CP4IURL'
+    Value: !GetAtt   CP4IURL.SecretString
   CP4IUsernameValue:
     Description: CP4I login id.
-    Value: !Ref 'CP4IUsername'
+    Value: !GetAtt   CP4IUsername.SecretString
   CP4IPasswordValue:
     Description: CP4I password.
-    Value: !Ref 'CP4IPassword'
+    Value: !GetAtt   CP4IPassword.SecretString
   OpenshiftURLValue:
     Description: The URL for the OpenShift UI.
-    Value: !Ref 'OpenshiftURL'
+    Value: !GetAtt   OpenshiftURL.SecretString
   OpenshiftApi:
     Description: OpenShift API.
-    Value: !Ref 'ROSAAPI'
+    Value: !GetAtt   ROSAAPI.SecretString
   OpenshiftUsername:
     Description: OpenShift Username.
-    Value: !Ref 'ROSAUsername'
+    Value: !GetAtt   ROSAUsername.SecretString
   OpenshiftPassword:
     Description: OpenShift password.
-    Value: !Ref 'ROSAPassword'
+    Value: !GetAtt   ROSAPassword.SecretString
   Openshiftlogincommand:
     Description: ROSA login command.
-    Value: !Ref 'OCLoginCommand'      
+    Value: !GetAtt  OCLoginCommand.SecretString
