@@ -325,450 +325,252 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-
-  EC21PolicyAttachToBooNodeIamRole:
-    DependsOn: 
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: ec21-Policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - autoscaling:DescribeAutoScalingGroups
-            - ec2:AllocateAddress
-            - ec2:AssociateAddress
-            - ec2:AssociateDhcpOptions
-            - ec2:AssociateRouteTable
-            - ec2:AttachInternetGateway
-            - ec2:AttachNetworkInterface
-            - ec2:AuthorizeSecurityGroupEgress
-            - ec2:AuthorizeSecurityGroupIngress
-            - ec2:CopyImage
-            - ec2:CreateDhcpOptions
-            - ec2:CreateInternetGateway
-            - ec2:CreateNatGateway
-            - ec2:CreateNetworkInterface
-            - ec2:CreateRoute
-            - ec2:CreateRouteTable
-            - ec2:CreateSecurityGroup
-            - ec2:CreateSubnet
-            - ec2:CreateTags
-            - ec2:CreateVolume
-            - ec2:CreateVpc
-            - ec2:CreateVpcEndpoint
-            - ec2:DeleteDhcpOptions
-            - ec2:DeleteInternetGateway
-            - ec2:DeleteNatGateway
-            - ec2:DeleteNetworkInterface
-            - ec2:DeleteRoute
-            - ec2:DeleteRouteTable
-            - ec2:DeleteSecurityGroup
-            - ec2:DeleteSnapshot
-            - ec2:DeleteSubnet
-            - ec2:DeleteTags
-            - ec2:DeleteVolume
-            - ec2:DeleteVpc
-            - ec2:DeleteVpcEndpoints
-            - ec2:DeregisterImage
-          Resource: "*"
-
-  EC22PolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: ec22-Policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - ec2:DEscribe*
-            - ec2:DetachInternetGateway
-            - ec2:DisassociateRouteTable
-            - ec2:GetConsoleOutput
-            - ec2:GetEbsDefaultKmsKeyId
-            - ec2:ModifyInstanceAttribute
-            - ec2:ModifyNetworkInterfaceAttribute
-            - ec2:ModifySubnetAttribute
-            - ec2:ModifyVpcAttribute
-            - ec2:ReleaseAddress
-            - ec2:ReplaceRouteTableAssociation
-            - ec2:RevokeSecurityGroupEgress
-            - ec2:RevokeSecurityGroupIngress
-            - ec2:RunInstances
-            - ec2:StartInstances
-            - ec2:StopInstances
-            - ec2:TerminateInstances
-            - ec2:AttachVolume
-            - ec2:DetachVolume
-            - ec2:ModifyVolume
-            - ec2:CreateVpcEndpointServiceConfiguration
-            - ec2:DeleteVpcEndpointServiceConfigurations
-            - ec2:DescribeVpcEndpointServiceConfigurations
-            - ec2:DescribeVpcEndpointServicePermissions
-            - ec2:DescribeVpcEndpointServices
-            - ec2:ModifyVpcEndpointServicePermissions
-            - "ec2-instance-connect:SendSerialConsoleSSHPublicKey"
-          Resource: "*"
-
-  EC23PolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: ec23-Policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - ec2:CopySnapshot
-            - ec2:CreateNetworkInsightsPath
-            - ec2:CreateSnapshot
-            - ec2:CreateSnapshots
-            - ec2:DeleteNetworkInsightsAnalysis
-            - ec2:DeleteNetworkInsightsPath
-            - ec2:GetAssociatedIpv6PoolCidrs
-            - ec2:GetManagedPrefixListEntries
-            - ec2:GetSerialConsoleAccessStatus
-            - ec2:GetTransitGatewayAttachmentPropagations
-            - ec2:GetTransitGatewayMulticastDomainAssociations
-            - ec2:GetTransitGatewayPrefixListReferences
-            - ec2:GetTransitGatewayRouteTableAssociations
-            - ec2:GetTransitGatewayRouteTablePropagations
-            - ec2:RebootInstances
-            - ec2:SearchLocalGatewayRoutes
-            - ec2:SearchTransitGatewayMulticastGroups
-            - ec2:SearchTransitGatewayRoutes
-            - ec2:StartNetworkInsightsAnalysis
-          Resource: "*"
-
-  ELBPolicyAttachToBooNodeIamRole:
-    DependsOn: 
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: elb-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - elasticloadbalancing:*
-          Resource: "*"
-
-  IAMPolicyAttachToBooNodeIamRole:
-    DependsOn: 
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: iam-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - iam:AddRoleToInstanceProfile
-            - iam:CreateInstanceProfile
-            - iam:DeleteInstanceProfile
-            - iam:GetInstanceProfile
-            - iam:TagInstanceProfile
-            - iam:GetRole
-            - iam:GetRolePolicy
-            - iam:GetUser
-            - iam:ListAttachedRolePolicies
-            - iam:ListInstanceProfiles
-            - iam:ListInstanceProfilesForRole
-            - iam:ListRolePolicies
-            - iam:ListRoles
-            - iam:ListUserPolicies
-            - iam:ListUsers
-            - iam:PassRole
-            - iam:RemoveRoleFromInstanceProfile
-            - iam:SimulatePrincipalPolicy
-            - iam:UntagRole
-            - iam:GetUserPolicy
-            - iam:ListAccessKeys
-            - iam:CreateServiceLinkedRole
-            - iam:GetOpenIDConnectProvider
-            - iam:ListRoleTags
-            - iam:AttachRolePolicy
-            - iam:CreateOpenIDConnectProvider
-            - iam:CreateRole
-            - iam:ListPolicies
-            - iam:ListPolicyTags
-            - iam:PutRolePermissionsBoundary
-            - iam:TagRole
-            - iam:GetPolicy
-            - iam:ListPolicyVersions
-            - iam:CreatePolicyVersion
-            - iam:DeletePolicyVersion
-            - iam:TagPolicy
-            - iam:TagOpenIDConnectProvider
-            - iam:UpdateAssumeRolePolicy
-          Resource: "*"
-
-  S3PolicyAttachToBooNodeIamRole:
-    DependsOn: 
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: s3-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - s3:CreateBucket
-            - s3:DeleteBucket
-            - s3:DeleteObject
-            - s3:DeleteObjectVersion
-            - s3:GetAccelerateConfiguration
-            - s3:GetBucketAcl
-            - s3:GetBucketCORS
-            - s3:GetBucketLocation
-            - s3:GetBucketLogging
-            - s3:GetBucketObjectLockConfiguration
-            - s3:GetBucketPolicy
-            - s3:GetBucketReplication
-            - s3:GetBucketRequestPayment
-            - s3:GetBucketTagging
-            - s3:GetBucketVersioning
-            - s3:GetBucketWebsite
-            - s3:GetEncryptionConfiguration
-            - s3:GetLifecycleConfiguration
-            - s3:GetObject
-            - s3:GetObjectAcl
-            - s3:GetObjectTagging
-            - s3:GetObjectVersion
-            - s3:GetReplicationConfiguration
-            - s3:ListBucket
-            - s3:ListBucketVersions
-            - s3:PutBucketAcl
-            - s3:PutBucketTagging
-            - s3:PutBucketVersioning
-            - s3:PutEncryptionConfiguration
-            - s3:PutObject
-            - s3:PutObjectAcl
-            - s3:PutObjectTagging
-            - s3:PutBucketPublicAccessBlock
-            - s3:GetBucketPublicAccessBlock
-            - s3:PutLifecycleConfiguration
-            - s3:ListBucketMultipartUploads
-            - s3:AbortMultipartUpload
-            - s3:ListAllMyBuckets
-          Resource: "*"
-
-  TagSerQPolicyAttachToBooNodeIamRole:
-    DependsOn: 
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: tag-ser-q-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - tag:GetResources
-            - tag:UntagResources
-            - servicequotas:*
-          Resource: "*"
-
-  STSPolicyAttachToBooNodeIamRole:
-    DependsOn: 
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: sts-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - sts:AssumeRole
-            - sts:AssumeRoleWithWebIdentity
-            - sts:GetCallerIdentity
-            - sts:DecodeAuthorizationMessage
-          Resource: "*"
-
-  CWPolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: cw-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - cloudwatch:GetMetricData
-            - cloudwatch:GetMetricStatistics
-            - cloudwatch:ListMetrics              
-            - cloudtrail:DescribeTrails
-            - cloudtrail:LookupEvents
-          Resource: "*"
-
-  KMSPolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: kms-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - kms:DescribeKey              
-            - kms:CreateGrant
-            - kms:Decrypt
-            - kms:Encrypt
-            - kms:GenerateDataKey
-            - kms:GenerateDataKeyWithoutPlainText
-            - kms:DescribeKey
-          Resource: "*"
-
-  TirosPolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: tiros-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - tiros:CreateQuery
-            - tiros:GetQueryAnswer
-            - tiros:GetQueryExplanation
-          Resource: "*"
-
-  EFSPolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: efs-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - elasticfilesystem:DescribeBackupPolicy
-            - elasticfilesystem:DeleteAccessPoint
-            - elasticfilesystem:DescribeReplicationConfigurations
-            - elasticfilesystem:UntagResource
-            - elasticfilesystem:PutAccountPreferences
-            - elasticfilesystem:CreateFileSystem
-            - elasticfilesystem:ListTagsForResource
-            - elasticfilesystem:DeleteReplicationConfiguration
-            - elasticfilesystem:DescribeAccountPreferences
-            - elasticfilesystem:ClientWrite
-            - elasticfilesystem:CreateReplicationConfiguration
-            - elasticfilesystem:DeleteTags
-            - elasticfilesystem:DescribeLifecycleConfiguration
-            - elasticfilesystem:ClientMount
-            - elasticfilesystem:DescribeFileSystemPolicy
-            - elasticfilesystem:PutLifecycleConfiguration
-            - elasticfilesystem:DescribeFileSystems
-            - elasticfilesystem:DeleteMountTarget
-            - elasticfilesystem:CreateAccessPoint
-            - elasticfilesystem:PutFileSystemPolicy
-            - elasticfilesystem:DeleteFileSystemPolicy
-            - elasticfilesystem:ModifyMountTargetSecurityGroups
-            - elasticfilesystem:DescribeMountTargets
-            - elasticfilesystem:Restore
-            - elasticfilesystem:DescribeAccessPoints
-            - elasticfilesystem:TagResource
-            - elasticfilesystem:CreateTags
-            - elasticfilesystem:DescribeTags
-            - elasticfilesystem:CreateMountTarget
-            - elasticfilesystem:Backup
-            - elasticfilesystem:PutBackupPolicy
-            - elasticfilesystem:ClientRootAccess
-            - elasticfilesystem:DeleteFileSystem
-            - elasticfilesystem:DescribeMountTargetSecurityGroups
-            - elasticfilesystem:UpdateFileSystem
-          Resource: "*"
-
-  SSMPolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: ssm-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: "Allow"
-          Action: 
-            - ssm:SendCommand
-            - ssm:PutParameter
-            - ssm:GetParameter
-          Resource:
-            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
-            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
-            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
-
-  SMPolicyAttachToBooNodeIamRole:
-    DependsOn:
-      - BootNodeIamRole
-    Type: AWS::IAM::Policy
-    Properties: 
-      PolicyName: sm-policy
-      Roles: 
-        - !Ref BootNodeIamRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Sid: VisualEditor0 
-          Effect: Allow
-          Action:
-            - secretsmanager:PutSecretValue
-            - secretsmanager:UpdateSecret
-            - secretsmanager:GetSecretValue
-            - secretsmanager:UpdateSecret
-          Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
-        - Effect: "Allow"
-          Action: 
-            - secretsmanager:GetSecretValue
-          Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
-          Condition:
-            StringEquals:
-              aws:ResourceTag/red-hat-managed: true
+      Policies:
+        - PolicyName: openshift-policies
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: 
+                  - autoscaling:DescribeAutoScalingGroups
+                  - ec2:AllocateAddress
+                  - ec2:AssociateAddress
+                  - ec2:AssociateDhcpOptions
+                  - ec2:AssociateRouteTable
+                  - ec2:AttachInternetGateway
+                  - ec2:AttachNetworkInterface
+                  - ec2:AuthorizeSecurityGroupEgress
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:CopyImage
+                  - ec2:CreateDhcpOptions
+                  - ec2:CreateInternetGateway
+                  - ec2:CreateNatGateway
+                  - ec2:CreateNetworkInterface
+                  - ec2:CreateRoute
+                  - ec2:CreateRouteTable
+                  - ec2:CreateSecurityGroup
+                  - ec2:CreateSubnet
+                  - ec2:CreateTags
+                  - ec2:CreateVolume
+                  - ec2:CreateVpc
+                  - ec2:CreateVpcEndpoint
+                  - ec2:DeleteDhcpOptions
+                  - ec2:DeleteInternetGateway
+                  - ec2:DeleteNatGateway
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DeleteRoute
+                  - ec2:DeleteRouteTable
+                  - ec2:DeleteSecurityGroup
+                  - ec2:DeleteSnapshot
+                  - ec2:DeleteSubnet
+                  - ec2:DeleteTags
+                  - ec2:DeleteVolume
+                  - ec2:DeleteVpc
+                  - ec2:DeleteVpcEndpoints
+                  - ec2:DeregisterImage
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - ec2:Describe*
+                  - ec2:DetachInternetGateway
+                  - ec2:DisassociateRouteTable
+                  - ec2:GetConsoleOutput
+                  - ec2:GetEbsDefaultKmsKeyId
+                  - ec2:ModifyInstanceAttribute
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - ec2:ModifySubnetAttribute
+                  - ec2:ModifyVpcAttribute
+                  - ec2:ReleaseAddress
+                  - ec2:ReplaceRouteTableAssociation
+                  - ec2:RevokeSecurityGroupEgress
+                  - ec2:RevokeSecurityGroupIngress
+                  - ec2:RunInstances
+                  - ec2:StartInstances
+                  - ec2:StopInstances
+                  - ec2:TerminateInstances
+                  - ec2:AttachVolume
+                  - ec2:DetachVolume
+                  - ec2:ModifyVolume
+                  - ec2:CreateVpcEndpointServiceConfiguration
+                  - ec2:DeleteVpcEndpointServiceConfigurations
+                  - ec2:DescribeVpcEndpointServiceConfigurations
+                  - ec2:DescribeVpcEndpointServicePermissions
+                  - ec2:DescribeVpcEndpointServices
+                  - ec2:ModifyVpcEndpointServicePermissions
+                  - "ec2-instance-connect:SendSerialConsoleSSHPublicKey"
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - ec2:CopySnapshot
+                  - ec2:CreateNetworkInsightsPath
+                  - ec2:CreateSnapshot
+                  - ec2:CreateSnapshots
+                  - ec2:DeleteNetworkInsightsAnalysis
+                  - ec2:DeleteNetworkInsightsPath
+                  - ec2:GetAssociatedIpv6PoolCidrs
+                  - ec2:GetManagedPrefixListEntries
+                  - ec2:GetSerialConsoleAccessStatus
+                  - ec2:GetTransitGatewayAttachmentPropagations
+                  - ec2:GetTransitGatewayMulticastDomainAssociations
+                  - ec2:GetTransitGatewayPrefixListReferences
+                  - ec2:GetTransitGatewayRouteTableAssociations
+                  - ec2:GetTransitGatewayRouteTablePropagations
+                  - ec2:RebootInstances
+                  - ec2:SearchLocalGatewayRoutes
+                  - ec2:SearchTransitGatewayMulticastGroups
+                  - ec2:SearchTransitGatewayRoutes
+                  - ec2:StartNetworkInsightsAnalysis
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - elasticloadbalancing:*
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - iam:AddRoleToInstanceProfile
+                  - iam:CreateInstanceProfile
+                  - iam:DeleteInstanceProfile
+                  - iam:GetInstanceProfile
+                  - iam:TagInstanceProfile
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:GetUser
+                  - iam:ListAttachedRolePolicies
+                  - iam:ListInstanceProfiles
+                  - iam:ListInstanceProfilesForRole
+                  - iam:ListRolePolicies
+                  - iam:ListRoles
+                  - iam:ListUserPolicies
+                  - iam:ListUsers
+                  - iam:PassRole
+                  - iam:RemoveRoleFromInstanceProfile
+                  - iam:SimulatePrincipalPolicy
+                  - iam:UntagRole
+                  - iam:GetUserPolicy
+                  - iam:ListAccessKeys
+                  - iam:CreateServiceLinkedRole
+                  - iam:GetOpenIDConnectProvider
+                  - iam:ListRoleTags
+                  - iam:AttachRolePolicy
+                  - iam:CreateOpenIDConnectProvider
+                  - iam:CreateRole
+                  - iam:ListPolicies
+                  - iam:ListPolicyTags
+                  - iam:PutRolePermissionsBoundary
+                  - iam:TagRole
+                  - iam:GetPolicy
+                  - iam:ListPolicyVersions
+                  - iam:CreatePolicyVersion
+                  - iam:DeletePolicyVersion
+                  - iam:TagPolicy
+                  - iam:TagOpenIDConnectProvider
+                  - iam:UpdateAssumeRolePolicy
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - s3:CreateBucket
+                  - s3:DeleteBucket
+                  - s3:DeleteObject
+                  - s3:DeleteObjectVersion
+                  - s3:GetAccelerateConfiguration
+                  - s3:GetBucketAcl
+                  - s3:GetBucketCORS
+                  - s3:GetBucketLocation
+                  - s3:GetBucketLogging
+                  - s3:GetBucketObjectLockConfiguration
+                  - s3:GetBucketPolicy
+                  - s3:GetBucketReplication
+                  - s3:GetBucketRequestPayment
+                  - s3:GetBucketTagging
+                  - s3:GetBucketVersioning
+                  - s3:GetBucketWebsite
+                  - s3:GetEncryptionConfiguration
+                  - s3:GetLifecycleConfiguration
+                  - s3:GetObject
+                  - s3:GetObjectAcl
+                  - s3:GetObjectTagging
+                  - s3:GetObjectVersion
+                  - s3:GetReplicationConfiguration
+                  - s3:ListBucket
+                  - s3:ListBucketVersions
+                  - s3:PutBucketAcl
+                  - s3:PutBucketTagging
+                  - s3:PutBucketVersioning
+                  - s3:PutEncryptionConfiguration
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:PutObjectTagging
+                  - s3:PutBucketPublicAccessBlock
+                  - s3:GetBucketPublicAccessBlock
+                  - s3:PutLifecycleConfiguration
+                  - s3:ListBucketMultipartUploads
+                  - s3:AbortMultipartUpload
+                  - s3:ListAllMyBuckets
+                Resource: "*" 
+              - Effect: "Allow"
+                Action: 
+                  - tag:GetResources
+                  - tag:UntagResources
+                  - servicequotas:*
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - sts:AssumeRole
+                  - sts:AssumeRoleWithWebIdentity
+                  - sts:GetCallerIdentity
+                  - sts:DecodeAuthorizationMessage
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - cloudwatch:GetMetricData
+                  - cloudwatch:GetMetricStatistics
+                  - cloudwatch:ListMetrics              
+                  - cloudtrail:DescribeTrails
+                  - cloudtrail:LookupEvents
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - kms:DescribeKey              
+                  - kms:CreateGrant
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                  - kms:GenerateDataKeyWithoutPlainText
+                  - kms:DescribeKey
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - tiros:CreateQuery
+                  - tiros:GetQueryAnswer
+                  - tiros:GetQueryExplanation
+                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                  - elasticfilesystem:*
+                Resource: "*"         
+              - Effect: "Allow"
+                Action: 
+                  - ssm:SendCommand
+                  - ssm:PutParameter
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"    
+              - Effect: Allow
+                Action:
+                  - secretsmanager:PutSecretValue
+                  - secretsmanager:UpdateSecret
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:UpdateSecret
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
+              - Effect: "Allow"
+                Action: 
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/red-hat-managed: true
 
   OpenshiftURL:
     Type: AWS::SecretsManager::Secret
@@ -1149,25 +951,25 @@ Resources:
 Outputs:
   CP4IURLValue:
     Description: CP4I login page URL.
-    Value: !GetAtt   CP4IURL.SecretString
+    Value: !Ref 'CP4IURL'
   CP4IUsernameValue:
     Description: CP4I login id.
-    Value: !GetAtt   CP4IUsername.SecretString
+    Value: !Ref 'CP4IUsername'
   CP4IPasswordValue:
     Description: CP4I password.
-    Value: !GetAtt   CP4IPassword.SecretString
+    Value: !Ref 'CP4IPassword'
   OpenshiftURLValue:
     Description: The URL for the OpenShift UI.
-    Value: !GetAtt   OpenshiftURL.SecretString
+    Value: !Ref 'OpenshiftURL'
   OpenshiftApi:
     Description: OpenShift API.
-    Value: !GetAtt   ROSAAPI.SecretString
+    Value: !Ref 'ROSAAPI'
   OpenshiftUsername:
     Description: OpenShift Username.
-    Value: !GetAtt   ROSAUsername.SecretString
+    Value: !Ref 'ROSAUsername'
   OpenshiftPassword:
     Description: OpenShift password.
-    Value: !GetAtt   ROSAPassword.SecretString
+    Value: !Ref 'ROSAPassword'
   Openshiftlogincommand:
     Description: ROSA login command.
-    Value: !GetAtt  OCLoginCommand.SecretString
+    Value: !Ref 'OCLoginCommand'      
