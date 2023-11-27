@@ -72,8 +72,8 @@ function oc_login() {
 }
 
 
-SHORT=bp:,cn:,h
-LONG=base-path:,cluster-name:,help
+SHORT=bp:,cn:,in:,h
+LONG=base-path:,cluster-name:,instance-namespace:,help
 OPTS=$(getopt -a -n weather --options $SHORT --longoptions $LONG -- "$@")
 
 eval set -- "$OPTS"
@@ -89,6 +89,11 @@ do
       cluster_name="$2"
       shift 2
       ;;
+    -in | --instance-namespace )
+      instance_namespace="$2"
+      shift 2
+      ;;
+
 
     -h | --help)
       "This is a store-secrets script"
@@ -133,3 +138,17 @@ rosa_login_command=$(awk '/https/' $cred_path)
 aws secretsmanager put-secret-value --secret-id "$clustername-cluster-login-command" --secret-string "$rosa_login_command"
 
 echo "***** rosa cluster secrets are stored  *****"
+
+# Store cpi credentials to AWS Secrets Manager (sm)
+cpi_username_password_tmp=$(oc extract secret/platform-auth-idp-credentials -n ibm-common-services --to=-)
+
+username=$(echo "$cpi_username_password_tmp" | sed -n '1p')
+password=$(echo "$cpi_username_password_tmp" | sed -n '2p')
+
+aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Username" --secret-string "$username"
+aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Password" --secret-string "$password"
+
+# Store cpi url to Secrets Manager (sm)
+cpi_url=$(oc get routes cpd -n $instance_namespace -o jsonpath='{.spec.host}')
+aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-URL" --secret-string "$cpi_url"
+echo "***** CP4I secrets are stored  *****"
