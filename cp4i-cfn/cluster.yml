@@ -293,10 +293,6 @@ Resources:
                   - ssm:ListCommands
                 Resource: 
                   - '*'
-#                Condition:
-#                  StringEquals:
-#                    Aws:Region: !Ref "AWS::Region"                    
-#                    Aws:AccountId: !Ref AWS::AccountId
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
@@ -307,20 +303,11 @@ Resources:
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
-
- #               Condition:
- #                 StringEquals:
- #                   Aws:Region: !Ref "AWS::Region" 
- #                   Aws:AccountId: !Ref AWS::AccountId
               - Effect: Allow
                 Action:
                   - logs:FilterLogEvents
                 Resource:
                   - '*' 
-#                Condition:
-#                  StringEquals:
-#                    Aws:Region: !Ref "AWS::Region" 
-#                    Aws:AccountId: !Ref AWS::AccountId
 
   BootNodeIamRole:
     Type: AWS::IAM::Role
@@ -340,7 +327,8 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
 
   EC21PolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole
+    DependsOn: 
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ec21-Policy
@@ -394,7 +382,8 @@ Resources:
 #              Aws:AccountId: !Ref AWS::AccountId
 
   EC22PolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ec22-Policy
@@ -433,13 +422,10 @@ Resources:
             - ec2:ModifyVpcEndpointServicePermissions
             - "ec2-instance-connect:SendSerialConsoleSSHPublicKey"
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   EC23PolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ec23-Policy
@@ -470,13 +456,10 @@ Resources:
             - ec2:SearchTransitGatewayRoutes
             - ec2:StartNetworkInsightsAnalysis
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   ELBPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn: 
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: elb-policy
@@ -489,13 +472,10 @@ Resources:
           Action: 
             - elasticloadbalancing:*
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   IAMPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn: 
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: iam-policy
@@ -545,13 +525,10 @@ Resources:
             - iam:TagOpenIDConnectProvider
             - iam:UpdateAssumeRolePolicy
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   S3PolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn: 
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: s3-policy
@@ -601,13 +578,10 @@ Resources:
             - s3:AbortMultipartUpload
             - s3:ListAllMyBuckets
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   TagSerQPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn: 
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: tag-ser-q-policy
@@ -622,13 +596,10 @@ Resources:
             - tag:UntagResources
             - servicequotas:*
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   STSPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn: 
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: sts-policy
@@ -644,13 +615,10 @@ Resources:
             - sts:GetCallerIdentity
             - sts:DecodeAuthorizationMessage
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   CWPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: cw-policy
@@ -667,13 +635,10 @@ Resources:
             - cloudtrail:DescribeTrails
             - cloudtrail:LookupEvents
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   KMSPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: kms-policy
@@ -692,13 +657,10 @@ Resources:
             - kms:GenerateDataKeyWithoutPlainText
             - kms:DescribeKey
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   TirosPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: tiros-policy
@@ -713,13 +675,10 @@ Resources:
             - tiros:GetQueryAnswer
             - tiros:GetQueryExplanation
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   EFSPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: efs-policy
@@ -766,13 +725,10 @@ Resources:
             - elasticfilesystem:DescribeMountTargetSecurityGroups
             - elasticfilesystem:UpdateFileSystem
           Resource: "*"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   SSMPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: ssm-policy
@@ -790,13 +746,10 @@ Resources:
             - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
             - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
             - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
-#          Condition:
-#            StringEquals:
-#              Aws:Region: !Ref AWS::Region
-#              Aws:AccountId: !Ref AWS::AccountId
 
   SMPolicyAttachToBooNodeIamRole:
-    DependsOn: BootNodeIamRole  
+    DependsOn:
+      - BootNodeIamRole
     Type: AWS::IAM::Policy
     Properties: 
       PolicyName: sm-policy
@@ -1101,7 +1054,7 @@ Resources:
               /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
               exit 1;
             else
-              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${CpiNamespace} | true
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${CpiNamespace} || true
             fi
 
             ecode=$?
@@ -1182,7 +1135,7 @@ Resources:
       Runtime: python3.8
       Timeout: 600
              
-  Cleanup :
+  Cleanup:
     Type: Custom::Cleanup
     Properties:
       DependsOn: BootnodeInstance
