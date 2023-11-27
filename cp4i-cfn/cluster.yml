@@ -1096,7 +1096,11 @@ Resources:
             ecode=$?
 
             sudo chown -R ec2-user:ec2-user /home/ec2-user
-            if [ $ecode -eq 0 ]; then
+            if [ $ecode -gt 0 ]; then
+              echo "CP4I deployment is failed"
+              /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
+              exit 1;
+            else
               /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${CpiNamespace} | true
             fi
 
