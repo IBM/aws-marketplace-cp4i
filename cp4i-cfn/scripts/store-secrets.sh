@@ -142,8 +142,8 @@ echo "***** rosa cluster secrets are stored  *****"
 # Store cpi credentials to AWS Secrets Manager (sm)
 cpi_username_password_tmp=$(oc extract secret/platform-auth-idp-credentials -n ibm-common-services --to=-)
 
-username=$(echo "$cpi_username_password_tmp" | sed -n '2p')
-password=$(echo "$cpi_username_password_tmp" | sed -n '1p')
+username=$(oc get secret platform-auth-idp-credentials   -n ibm-common-services -o jsonpath='{.data.admin_username}'   | base64 -d)
+password=$(oc get secret platform-auth-idp-credentials   -n ibm-common-services -o jsonpath='{.data.admin_password}'   | base64 -d)
 
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Username" --secret-string "$username"
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Password" --secret-string "$password"
