@@ -123,7 +123,7 @@ oc_login
 clustername=$cluster_name
 
 openshift_url=$(oc get route --all-namespaces | grep console-openshift | awk '{print $3}')
-aws secretsmanager put-secret-value --secret-id "$clustername-OpenshiftURL" --secret-string "https://$openshift_url"
+aws secretsmanager put-secret-value --secret-id "$clustername-OpenshiftURL" --secret-string "$openshift_url"
 
 rosa_api=$(awk '/https/{print $3}' $cred_path)
 aws secretsmanager put-secret-value --secret-id "$clustername-ROSAAPI" --secret-string \"$rosa_api\"
