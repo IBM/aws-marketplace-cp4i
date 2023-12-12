@@ -4,11 +4,6 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label: 
-          default: API Configuration
-        Parameters:
-          - RosaToken
-          - IBMEntitlementKey
-      - Label: 
           default: Network Settings
         Parameters:
           - VPCID
@@ -34,24 +29,23 @@ Metadata:
           - Tenancy
           - KeyPairName
       - Label: 
-          default: Cluster Configuration
+          default: Openshift Configuration
         Parameters:
+          - OpenshiftVersion
+          - WorkerVMSize
+          - WorkerNodeQuantity
           - PrivateCluster
           - EnableFips
           - StorageType
           - ClusterName
-          - WorkerNodeType
-          - WorkerNodeCount
-      - Label:
-          default: Openshift Configuration
-        Parameters:
-          - OpenshiftVersion
+          - RosaToken
       - Label: 
           default: Cloud Pak for Integration
         Parameters:
-          - LicenseInfo
+          - EntitlementKey
+          - LicenseAgreement
           - CP4IVersion
-          - NameSpace
+          - PlatformUiNamespace
           - CP4ILicense
 Parameters:
   Tenancy:
@@ -63,7 +57,7 @@ Parameters:
       - "dedicated"
     Default: "default"
   VPCID:
-    Description: The ID of your existing VPC for deployment.
+    Description: The ID of your existing Virtual Private Cloud (VPC) for deployment.
     Type: AWS::EC2::VPC::Id
   PrivateSubnet1ID:
     Description: The ID of the private subnet in Availability Zone a for the workload (e.g., subnet-a0246dcd).
@@ -111,7 +105,7 @@ Parameters:
     Description: The service network CIDR IP range (e.g., 172.30.0.0/16).
     Type: String
   OpenshiftVersion:
-    Description: Choose Openshift Version
+    Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version
     Type: String
     Default: "4.12.30"
   ClusterName:
@@ -125,8 +119,8 @@ Parameters:
     Type: String
     Default: ""
     NoEcho: 'true'
-  WorkerNodeType:
-    Description: The EC2 instance type for the OpenShift worker nodes.
+  WorkerVMSize:
+    Description: The size of the worker nodes.
     ConstraintDescription: Must contain valid instance type
     Type: String
     AllowedValues:
@@ -149,7 +143,7 @@ Parameters:
       - r5.18xlarge
       - r5.24xlarge
     Default: m5.4xlarge
-  WorkerNodeCount:
+  WorkerNodeQuantity:
     Description: The number of the worker nodes. Minimum of 3 nodes required for multi-zone deployment. It should multiple of 3.
     Type: Number
     Default: 3
@@ -179,17 +173,17 @@ Parameters:
       - "true"
     Default: "false"
   StorageType:
-    Description: Choose storage type to be configured for ROSA.  
+    Description: Choose storage type to be configured.
     Type: String
     AllowedValues:
       - "efs"
     Default: "efs"
-  IBMEntitlementKey:
+  EntitlementKey:
     Description: Entitlement key for the IBM Entitled Registry, used to pull the software images.
     Type: String 
     Default: ""
     NoEcho: 'true'
-  LicenseInfo:
+  LicenseAgreement:
     Description: By accepting the license agreement you are accepting the terms and conditions of the license.  For more information about licenses, click this link https://ibm.biz/int-licenses
     Type: String
     Default: 'reject'
@@ -197,8 +191,8 @@ Parameters:
       - "accept"
       - "reject"
     ConstraintDescription: must answer 'accept'
-  NameSpace:
-    Description: Platform UI namespace.
+  PlatformUiNamespace:
+    Description: Namespace where you want to install the Platform UI.
     Type: String
     Default: cp4i    
   CP4IVersion:
@@ -257,12 +251,12 @@ Rules:
     - Assert:
         Fn::Contains:
         - - accept
-        - Ref: LicenseInfo
+        - Ref: LicenseAgreement
       AssertDescription: User must agree to the terms of the license agreement.
 
 Conditions:
   3AZCondition: !Equals [!Ref NumberOfAZs, 3]
-  AcceptLicense: !Equals [!Ref LicenseInfo, 'accept']
+  AcceptLicense: !Equals [!Ref LicenseAgreement, 'accept']
   OCSCondition: !Equals [!Ref StorageType, 'ocs']
   EfsCondition: !Equals [!Ref StorageType, 'efs']
 
@@ -799,8 +793,8 @@ Resources:
 
             # create ROSA cluster
             /bin/bash $HOME/install-rosa.sh --base-path=$HOME --operation=create --cluster-name=${ClusterName} \
-              --compute-machine-type=${WorkerNodeType} \
-              --replicas=${WorkerNodeCount} \
+              --compute-machine-type=${WorkerVMSize} \
+              --replicas=${WorkerNodeQuantity} \
               --region=$AWS_REGION \
               --machine-cidr=${MachineCIDR} \
               --service-cidr=${ServiceNetworkCIDR} \
@@ -836,10 +830,10 @@ Resources:
 
             # deploy CP4I
             /bin/bash $HOME/deploy-cp4i.sh --base-path=$HOME \
-              --license=${LicenseInfo} \
-              --ibm-entitlement-key=${IBMEntitlementKey} \
-              --namespace=${NameSpace} \
-              --intance-namespace=${NameSpace} \
+              --license=${LicenseAgreement} \
+              --ibm-entitlement-key=${EntitlementKey} \
+              --namespace=${PlatformUiNamespace} \
+              --intance-namespace=${PlatformUiNamespace} \
               --version=${CP4IVersion} \
               --license-id=${CP4ILicense}
             
@@ -851,7 +845,7 @@ Resources:
               /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
               exit 1;
             else
-              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${NameSpace} || true
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${PlatformUiNamespace} || true
             fi
 
             ecode=$?
