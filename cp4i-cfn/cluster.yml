@@ -7,9 +7,9 @@ Metadata:
           default: API Configuration
         Parameters:
           - RosaToken
-          - CpiEntitlementKey
+          - IBMEntitlementKey
       - Label: 
-          default: Networking
+          default: Network Settings
         Parameters:
           - VPCID
           - PrivateSubnet1ID
@@ -40,19 +40,19 @@ Metadata:
           - EnableFips
           - StorageType
           - ClusterName
-          - WorkerInstanceType
-          - WorkerMachineCount
+          - WorkerNodeType
+          - WorkerNodeCount
       - Label:
           default: Openshift Configuration
         Parameters:
           - OpenshiftVersion
       - Label: 
-          default: CPI
+          default: Cloud Pak for Integration
         Parameters:
-          - CpiAcceptLicense
-          - CpiVersion
-          - CpiNamespace
-          - CpiLicenseId
+          - LicenseInfo
+          - CP4IVersion
+          - NameSpace
+          - CP4ILicense
 Parameters:
   Tenancy:
     Description: >-
@@ -125,7 +125,7 @@ Parameters:
     Type: String
     Default: ""
     NoEcho: 'true'
-  WorkerInstanceType:
+  WorkerNodeType:
     Description: The EC2 instance type for the OpenShift worker nodes.
     ConstraintDescription: Must contain valid instance type
     Type: String
@@ -149,8 +149,8 @@ Parameters:
       - r5.18xlarge
       - r5.24xlarge
     Default: m5.4xlarge
-  WorkerMachineCount:
-    Description: The desired capacity for the ROSA worker inodes. Minimum of 3 nodes required for multi-zone deployment. It should multiple of 3.
+  WorkerNodeCount:
+    Description: The number of the worker nodes. Minimum of 3 nodes required for multi-zone deployment. It should multiple of 3.
     Type: Number
     Default: 3
   PrivateCluster:  
@@ -184,29 +184,29 @@ Parameters:
     AllowedValues:
       - "efs"
     Default: "efs"
-  CpiEntitlementKey:
-    Description: The CPI entitlement key to access IBM Container Registry.
+  IBMEntitlementKey:
+    Description: Entitlement key for the IBM Entitled Registry, used to pull the software images.
     Type: String 
     Default: ""
     NoEcho: 'true'
-  CpiAcceptLicense:
-    Description: I have read and agreed to the license terms that were provided to me at time of purchase. For more informaton about license, please refer following link https://ibm.biz/int-licenses
+  LicenseInfo:
+    Description: By accepting the license agreement you are accepting the terms and conditions of the license.  For more information about licenses, click this link https://ibm.biz/int-licenses
     Type: String
     Default: 'reject'
     AllowedValues:
       - "accept"
       - "reject"
     ConstraintDescription: must answer 'accept'
-  CpiNamespace:
-    Description: CP4I namespace
+  NameSpace:
+    Description: Platform UI namespace.
     Type: String
     Default: cp4i    
-  CpiVersion:
-    Description: CPI version to be installed on ROSA
+  CP4IVersion:
+    Description: Cloud Pak for Integration version.
     Type: String
     Default: "2022.2.1"
-  CpiLicenseId:
-    Description: CPI license id. IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN)
+  CP4ILicense:
+    Description: IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN)
     Type: String
     AllowedValues:
       - "L-RJON-CD3JKX"
@@ -257,12 +257,12 @@ Rules:
     - Assert:
         Fn::Contains:
         - - accept
-        - Ref: CpiAcceptLicense
+        - Ref: LicenseInfo
       AssertDescription: User must agree to the terms of the license agreement.
 
 Conditions:
   3AZCondition: !Equals [!Ref NumberOfAZs, 3]
-  AcceptLicense: !Equals [!Ref CpiAcceptLicense, 'accept']
+  AcceptLicense: !Equals [!Ref LicenseInfo, 'accept']
   OCSCondition: !Equals [!Ref StorageType, 'ocs']
   EfsCondition: !Equals [!Ref StorageType, 'efs']
 
@@ -799,8 +799,8 @@ Resources:
 
             # create ROSA cluster
             /bin/bash $HOME/install-rosa.sh --base-path=$HOME --operation=create --cluster-name=${ClusterName} \
-              --compute-machine-type=${WorkerInstanceType} \
-              --replicas=${WorkerMachineCount} \
+              --compute-machine-type=${WorkerNodeType} \
+              --replicas=${WorkerNodeCount} \
               --region=$AWS_REGION \
               --machine-cidr=${MachineCIDR} \
               --service-cidr=${ServiceNetworkCIDR} \
@@ -836,12 +836,12 @@ Resources:
 
             # deploy CP4I
             /bin/bash $HOME/deploy-cp4i.sh --base-path=$HOME \
-              --license=${CpiAcceptLicense} \
-              --ibm-entitlement-key=${CpiEntitlementKey} \
-              --namespace=${CpiNamespace} \
-              --intance-namespace=${CpiNamespace} \
-              --version=${CpiVersion} \
-              --license-id=${CpiLicenseId}
+              --license=${LicenseInfo} \
+              --ibm-entitlement-key=${IBMEntitlementKey} \
+              --namespace=${NameSpace} \
+              --intance-namespace=${NameSpace} \
+              --version=${CP4IVersion} \
+              --license-id=${CP4ILicense}
             
             ecode=$?
 
@@ -851,7 +851,7 @@ Resources:
               /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
               exit 1;
             else
-              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${CpiNamespace} || true
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${NameSpace} || true
             fi
 
             ecode=$?
