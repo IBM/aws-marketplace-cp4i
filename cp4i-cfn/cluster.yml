@@ -157,7 +157,7 @@ Parameters:
   NumberOfAZs:  
     Default: 3
     Description: >-
-      The number of Availability Zones to be used for the deployment. For a single CP4I ROSA cluster to be highly available, three Availability Zones are needed to avoid a single point of failure.
+      The number of Availability Zones to be used for the deployment. For a cluster to be highly available, three Availability Zones are needed to avoid a single point of failure.
     Type: Number
     AllowedValues:
       - 1
