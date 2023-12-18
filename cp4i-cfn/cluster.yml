@@ -44,9 +44,9 @@ Metadata:
         Parameters:
           - EntitlementKey
           - LicenseAgreement
-          - CP4IVersion
+          - CloudPakVersion
           - PlatformUiNamespace
-          - CP4ILicense
+          - CloudPakLicense
 Parameters:
   Tenancy:
     Description: >-
@@ -195,11 +195,11 @@ Parameters:
     Description: Namespace where you want to install the Platform UI.
     Type: String
     Default: cp4i    
-  CP4IVersion:
+  CloudPakVersion:
     Description: Cloud Pak for Integration version.
     Type: String
     Default: "2022.2.1"
-  CP4ILicense:
+  CloudPakLicense:
     Description: IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN)
     Type: String
     AllowedValues:
@@ -834,8 +834,8 @@ Resources:
               --ibm-entitlement-key=${EntitlementKey} \
               --namespace=${PlatformUiNamespace} \
               --intance-namespace=${PlatformUiNamespace} \
-              --version=${CP4IVersion} \
-              --license-id=${CP4ILicense}
+              --version=${CloudPakVersion} \
+              --license-id=${CloudPakLicense}
             
             ecode=$?
 
