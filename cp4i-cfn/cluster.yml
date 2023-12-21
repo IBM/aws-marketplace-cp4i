@@ -211,7 +211,7 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      BootNodeAmiId: ami-06640050dc3f556bb
+      BootNodeAmiId: ami-0adcf0020317f5ce0
     us-east-2:
       BootNodeAmiId: ami-092b43193629811af
     us-west-1:
@@ -337,30 +337,15 @@ Resources:
                   - ec2:AuthorizeSecurityGroupIngress
                   - ec2:CopyImage
                   - ec2:CreateDhcpOptions
-                  - ec2:CreateInternetGateway
-                  - ec2:CreateNatGateway
                   - ec2:CreateNetworkInterface
                   - ec2:CreateRoute
-                  - ec2:CreateRouteTable
                   - ec2:CreateSecurityGroup
-                  - ec2:CreateSubnet
                   - ec2:CreateTags
                   - ec2:CreateVolume
-                  - ec2:CreateVpc
-                  - ec2:CreateVpcEndpoint
                   - ec2:DeleteDhcpOptions
-                  - ec2:DeleteInternetGateway
-                  - ec2:DeleteNatGateway
                   - ec2:DeleteNetworkInterface
                   - ec2:DeleteRoute
-                  - ec2:DeleteRouteTable
-                  - ec2:DeleteSecurityGroup
                   - ec2:DeleteSnapshot
-                  - ec2:DeleteSubnet
-                  - ec2:DeleteTags
-                  - ec2:DeleteVolume
-                  - ec2:DeleteVpc
-                  - ec2:DeleteVpcEndpoints
                   - ec2:DeregisterImage
                 Resource: "*"
               - Effect: "Allow"
@@ -380,10 +365,7 @@ Resources:
                   - ec2:RevokeSecurityGroupIngress
                   - ec2:RunInstances
                   - ec2:StartInstances
-                  - ec2:StopInstances
-                  - ec2:TerminateInstances
                   - ec2:AttachVolume
-                  - ec2:DetachVolume
                   - ec2:ModifyVolume
                   - ec2:CreateVpcEndpointServiceConfiguration
                   - ec2:DeleteVpcEndpointServiceConfigurations
@@ -409,12 +391,26 @@ Resources:
                   - ec2:GetTransitGatewayPrefixListReferences
                   - ec2:GetTransitGatewayRouteTableAssociations
                   - ec2:GetTransitGatewayRouteTablePropagations
-                  - ec2:RebootInstances
                   - ec2:SearchLocalGatewayRoutes
                   - ec2:SearchTransitGatewayMulticastGroups
                   - ec2:SearchTransitGatewayRoutes
                   - ec2:StartNetworkInsightsAnalysis
                 Resource: "*"
+              - Effect: "Deny"
+                Action:
+                  - ec2:TerminateInstances
+                  - ec2:RebootInstances
+                  - ec2:StopInstances
+                  - ec2:DeleteSecurityGroup
+                  - ec2:DetachVolume
+                  - ec2:DeleteVolume
+                  - ec2:DeleteTags
+                Resource: "*"
+                Condition:
+                  StringNotLike:
+                    ec2:ResourceTag/Name:
+                      - !Sub "${ClusterName}*"
+                      - osd-network-verifier
               - Effect: "Allow"
                 Action: 
                   - elasticloadbalancing:*
@@ -459,13 +455,14 @@ Resources:
                   - iam:TagPolicy
                   - iam:TagOpenIDConnectProvider
                   - iam:UpdateAssumeRolePolicy
-                Resource: "*"
+                Resource:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:instance-profile/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:policy/*"
               - Effect: "Allow"
                 Action: 
                   - s3:CreateBucket
-                  - s3:DeleteBucket
-                  - s3:DeleteObject
-                  - s3:DeleteObjectVersion
                   - s3:GetAccelerateConfiguration
                   - s3:GetBucketAcl
                   - s3:GetBucketCORS
@@ -501,6 +498,16 @@ Resources:
                   - s3:AbortMultipartUpload
                   - s3:ListAllMyBuckets
                 Resource: "*" 
+              - Effect: "Deny"
+                Action:
+                  - s3:DeleteBucket
+                  - s3:DeleteObject
+                  - s3:DeleteObjectVersion
+                Resource: "*"
+                Condition:
+                  StringNotLike:
+                    s3:prefix:
+                      - !Sub "${ClusterName}*"
               - Effect: "Allow"
                 Action: 
                   - tag:GetResources
@@ -521,7 +528,9 @@ Resources:
                   - cloudwatch:ListMetrics              
                   - cloudtrail:DescribeTrails
                   - cloudtrail:LookupEvents
-                Resource: "*"
+                Resource:
+                  - !Sub arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:*
+                  - !Sub arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/*
               - Effect: "Allow"
                 Action: 
                   - kms:DescribeKey              
@@ -531,7 +540,8 @@ Resources:
                   - kms:GenerateDataKey
                   - kms:GenerateDataKeyWithoutPlainText
                   - kms:DescribeKey
-                Resource: "*"
+                Resource:
+                  - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"
               - Effect: "Allow"
                 Action: 
                   - tiros:CreateQuery
@@ -539,9 +549,18 @@ Resources:
                   - tiros:GetQueryExplanation
                 Resource: "*"
               - Effect: "Allow"
-                Action: 
+                Action:
                   - elasticfilesystem:*
-                Resource: "*"         
+                Resource:
+                  - !Sub arn:aws:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:file-system/*
+              - Effect: "Deny"
+                Action:
+                  - elasticfilesystem:DeleteFileSystem*
+                Resource: "*"
+                Condition:
+                  StringNotLike:
+                    aws:ResourceTag/Name:
+                      - !Sub "${ClusterName}*"
               - Effect: "Allow"
                 Action: 
                   - ssm:SendCommand
