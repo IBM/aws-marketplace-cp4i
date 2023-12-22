@@ -417,6 +417,18 @@ Resources:
                 Action: 
                   - elasticloadbalancing:*
                 Resource: "*"
+              - Effect: "Deny"
+                Action:
+                  - elasticloadbalancing:DeleteLoadBalancer
+                Resource: "arn:aws:elasticloadbalancing::*:*:loadbalancer/net/*"
+                Condition:
+                  StringNotLike:
+                    aws:ResourceTag/Name:
+                      - !Sub "${ClusterName}*"
+              - Effect: "Deny"
+                Action:
+                  - elasticloadbalancing:DeleteLoadBalancer
+                Resource: "arn:aws:elasticloadbalancing::*:*:loadbalancer/app/*"
               - Effect: "Allow"
                 Action: 
                   - iam:AddRoleToInstanceProfile
