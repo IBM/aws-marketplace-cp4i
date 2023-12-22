@@ -117,7 +117,8 @@ Parameters:
   RosaToken:
     Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account. Download ROSA token from https://console.redhat.com/openshift/token/show
     Type: String
-    Default: ""
+    AllowedPattern: \S+
+    ConstraintDescription: RosaToken must have value
     NoEcho: 'true'
   WorkerVMSize:
     Description: The size of the worker nodes.
@@ -181,7 +182,8 @@ Parameters:
   EntitlementKey:
     Description: Entitlement key for the IBM Entitled Registry, used to pull the software images.
     Type: String 
-    Default: ""
+    AllowedPattern: \S+
+    ConstraintDescription: EntitlementKey must have value
     NoEcho: 'true'
   LicenseAgreement:
     Description: By accepting the license agreement you are accepting the terms and conditions of the license.  For more information about licenses, click this link https://ibm.biz/int-licenses
@@ -496,8 +498,12 @@ Resources:
                   - s3:PutLifecycleConfiguration
                   - s3:ListBucketMultipartUploads
                   - s3:AbortMultipartUpload
+                Resource:
+                  - !Sub "arn:aws:s3:::${ClusterName}*"
+              - Effect: "Allow"
+                Action:
                   - s3:ListAllMyBuckets
-                Resource: "*" 
+                Resource: "*"
               - Effect: "Deny"
                 Action:
                   - s3:DeleteBucket
