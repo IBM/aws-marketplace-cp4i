@@ -329,6 +329,7 @@ Resources:
               - Effect: "Allow"
                 Action: 
                   - autoscaling:DescribeAutoScalingGroups
+                  - account:ListRegions
                   - ec2:AllocateAddress
                   - ec2:AssociateAddress
                   - ec2:AssociateDhcpOptions
@@ -463,6 +464,7 @@ Resources:
                   - iam:PutRolePermissionsBoundary
                   - iam:TagRole
                   - iam:GetPolicy
+                  - iam:CreatePolicy
                   - iam:ListPolicyVersions
                   - iam:CreatePolicyVersion
                   - iam:DeletePolicyVersion
