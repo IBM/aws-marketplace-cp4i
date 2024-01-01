@@ -250,6 +250,7 @@ function install_rosa_cluster() {
 
     # install rosa cluster
     if [ $ecode == 0 ]; then
+        sleep 60
         echo "Triggering cluster creation...."
         $installer_workspace/rosa create cluster $private_link --cluster-name=$cluster_name --compute-machine-type=$compute_machine_type --replicas=$replicas \
          --region=$region --machine-cidr=$machine_cidr --service-cidr=$service_cidr --pod-cidr=$pod_cidr \
