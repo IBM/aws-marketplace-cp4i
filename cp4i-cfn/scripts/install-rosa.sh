@@ -156,7 +156,7 @@ function identify_subnets() {
         if [ $multi_az == "true" ]; then
             multi_zone_subnets=${subnets_arr[0]},${subnets_arr[1]},${subnets_arr[2]},${subnets_arr[3]},${subnets_arr[4]},${subnets_arr[5]}
         else
-            single_zone_subnets=${subnets_arr[0]},${subnets_arr[3]}
+            single_zone_subnets=${subnets_arr[0]},${subnets_arr[1]}
         fi
     fi 
 
