@@ -22,7 +22,6 @@ Metadata:
           default: AZ
         Parameters:
           - NumberOfAZs
-          - AvailabilityZones
       - Label: 
           default: Instance Configuration
         Parameters:
@@ -60,22 +59,22 @@ Parameters:
     Description: The ID of your existing Virtual Private Cloud (VPC) for deployment.
     Type: AWS::EC2::VPC::Id
   PrivateSubnet1ID:
-    Description: The ID of the private subnet in Availability Zone a for the workload (e.g., subnet-a0246dcd).
+    Description: The ID of the private subnet in Availability Zone 1 for the workload (e.g., subnet-a0246dcd).
     Type: String
   PrivateSubnet2ID:
-    Description: The ID of the private subnet in Availability Zone b for the workload (e.g., subnet-b1f432cd).
+    Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd).
     Type: String
   PrivateSubnet3ID:
-    Description: The ID of the private subnet in Availability Zone c for the workload (e.g., subnet-b1f4a2cd).
+    Description: The ID of the private subnet in Availability Zone 3 for the workload (e.g., subnet-b1f4a2cd).
     Type: String
   PublicSubnet1ID:
-    Description: The ID of the public subnet in Availability Zone a for the ELB load balancer (e.g., subnet-9bc642ac).
+    Description: The ID of the public subnet in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac).
     Type: String
   PublicSubnet2ID:
-    Description: The ID of the public subnet in Availability Zone b for the ELB load balancer (e.g., subnet-e3246d8e).
+    Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e).
     Type: String
   PublicSubnet3ID:
-    Description: The ID of the public subnet in Availability Zone c for the ELB load balancer (e.g., subnet-e324ad8e).
+    Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e).
     Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
@@ -89,23 +88,23 @@ Parameters:
   MachineCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: The Cluster Network CIDR IP range that is used as IP address pools for machines (e.g., 10.0.0.0/16).
+    Description: The Cluster Network CIDR IP range that is used as IP address pools for machines or cluster nodes (e.g., 10.0.0.0/16). Refer link for more details https://docs.openshift.com/rosa/networking/cidr-range-definitions.html#machine-cidr-description .
     Type: String
   ClusterNetworkCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: The Cluster Network CIDR IP range that is used as IP address pools for pods (e.g., 10.128.0.0/16).
+    Description: The Cluster Network CIDR IP range that is used as IP address pools for pods (e.g., 10.128.0.0/16). Refer link for more details https://docs.openshift.com/rosa/networking/cidr-range-definitions.html#pod-cidr-description .
     Type: String
   ClusterNetworkHostPrefix:
-    Description: Cluster network host prefix.
+    Description: Cluster network host prefix, specify the subnet prefix length assigned to pods scheduled to individual machines. Refer link for more details  https://docs.openshift.com/rosa/networking/cidr-range-definitions.html#host-prefix-description .
     Type: Number
     Default: 23
   ServiceNetworkCIDR: 
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Description: The service network CIDR IP range (e.g., 172.30.0.0/16).
+    Description: The service network CIDR IP range for cluster services. (e.g., 172.30.0.0/16). Refer link for more details https://docs.openshift.com/rosa/networking/cidr-range-definitions.html#service-cidr-description .
     Type: String
   OpenshiftVersion:
-    Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version
+    Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
     Default: "4.12.30"
   ClusterName:
@@ -115,7 +114,7 @@ Parameters:
     AllowedPattern: ^[0-9a-z-]*$
     MaxLength: 15
   RosaToken:
-    Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account. Download ROSA token from https://console.redhat.com/openshift/token/show
+    Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account. Download ROSA token from https://console.redhat.com/openshift/token/show .
     Type: String
     AllowedPattern: \S+
     ConstraintDescription: RosaToken must have value
@@ -163,11 +162,8 @@ Parameters:
     AllowedValues:
       - 1
       - 3
-  AvailabilityZones:
-    Description: The list of Availability Zones to use for the subnets in the VPC. The Template uses one or three Availability Zones and preserves the logical order you specify.
-    Type: List<AWS::EC2::AvailabilityZone::Name>
   EnableFips:
-    Description: Enable Fips for Openshift
+    Description: Enable Fips for Openshift.
     Type: String
     AllowedValues:
       - "false"
@@ -194,7 +190,7 @@ Parameters:
       - "reject"
     ConstraintDescription: must answer 'accept'
   PlatformUiNamespace:
-    Description: Namespace where you want to install the Platform UI.
+    Description: OpenShift namespace where you want to install the Platform UI.
     Type: String
     Default: cp4i    
   CloudPakVersion:
@@ -202,7 +198,7 @@ Parameters:
     Type: String
     Default: "2022.2.1"
   CloudPakLicense:
-    Description: IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN)
+    Description: IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN).
     Type: String
     AllowedValues:
       - "L-RJON-CD3JKX"
@@ -259,7 +255,6 @@ Rules:
 Conditions:
   3AZCondition: !Equals [!Ref NumberOfAZs, 3]
   AcceptLicense: !Equals [!Ref LicenseAgreement, 'accept']
-  OCSCondition: !Equals [!Ref StorageType, 'ocs']
   EfsCondition: !Equals [!Ref StorageType, 'efs']
 
 Resources:
@@ -892,10 +887,6 @@ Resources:
           -
             LicenseAgreement: !If [ AcceptLicense, 'accept', 'reject']
             AZ: !If [ 3AZCondition , 'multi_zone', 'single_zone']
-            AvailabilityZone1: !Select [0, !Ref AvailabilityZones]
-            AvailabilityZone2: !If [ 3AZCondition, !Select [1, !Ref AvailabilityZones], ""]
-            AvailabilityZone3: !If [ 3AZCondition, !Select [2, !Ref AvailabilityZones], ""]
-            EnableOCS: !If [ OCSCondition, 'true', 'false' ]
             EnableEFS: !If [ EfsCondition, 'true', 'false' ]
 
   CleanUpLambda:
