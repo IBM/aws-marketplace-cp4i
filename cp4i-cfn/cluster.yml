@@ -7,6 +7,7 @@ Metadata:
           default: Network Settings
         Parameters:
           - VPCID
+          - NumberOfAZs
           - PrivateSubnet1ID
           - PrivateSubnet2ID
           - PrivateSubnet3ID
@@ -18,10 +19,6 @@ Metadata:
           - ClusterNetworkCIDR
           - ClusterNetworkHostPrefix
           - ServiceNetworkCIDR
-      - Label:
-          default: AZ
-        Parameters:
-          - NumberOfAZs
       - Label: 
           default: Instance Configuration
         Parameters:
@@ -62,19 +59,19 @@ Parameters:
     Description: The ID of the private subnet in Availability Zone 1 for the workload (e.g., subnet-a0246dcd).
     Type: String
   PrivateSubnet2ID:
-    Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd).
+    Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd). Required if the NumberOfAZs field is set to 3. However, if the NumberOfAZs field is set to 1, leave it empty.
     Type: String
   PrivateSubnet3ID:
-    Description: The ID of the private subnet in Availability Zone 3 for the workload (e.g., subnet-b1f4a2cd).
+    Description: The ID of the private subnet in Availability Zone 3 for the workload (e.g., subnet-b1f4a2cd). Required if the NumberOfAZs field is set to 3. However, if the NumberOfAZs field is set to 1, leave it empty.
     Type: String
   PublicSubnet1ID:
     Description: The ID of the public subnet in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac).
     Type: String
   PublicSubnet2ID:
-    Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e).
+    Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e). Required if the NumberOfAZs field is set to 3. However, if the NumberOfAZs field is set to 1, leave it empty.
     Type: String
   PublicSubnet3ID:
-    Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e).
+    Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e). Required if the NumberOfAZs field is set to 3. However, if the NumberOfAZs field is set to 1, leave it empty.
     Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
