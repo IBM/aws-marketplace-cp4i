@@ -308,13 +308,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
-                  - ssm:GetParameter
                   - ssm:DeleteParameter
+                  - ssm:GetParameter
                 Resource:
-                  - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}_CleanupStatus"
               - Effect: Allow
                 Action:
                   - logs:FilterLogEvents
@@ -610,16 +607,13 @@ Resources:
                 Action:
                   - secretsmanager:PutSecretValue
                   - secretsmanager:UpdateSecret
-                  - secretsmanager:GetSecretValue
-                  - secretsmanager:UpdateSecret
-                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ClusterName}*'
               - Effect: "Allow"
                 Action: 
                   - secretsmanager:GetSecretValue
-                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
-                Condition:
-                  StringEquals:
-                    aws:ResourceTag/red-hat-managed: true
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ClusterName}*'
 
   OpenshiftURL:
     Type: AWS::SecretsManager::Secret
