@@ -282,6 +282,9 @@ Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      Tags:
+        - Key: ClusterName
+          Value: !Sub "${ClusterName}"
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -317,10 +320,12 @@ Resources:
                   - logs:FilterLogEvents
                 Resource:
                   - '*' 
-
   BootNodeIamRole:
     Type: AWS::IAM::Role
     Properties:
+      Tags:
+        - Key: ClusterName
+          Value: !Sub "${ClusterName}" 
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -444,10 +449,39 @@ Resources:
                   - elasticloadbalancing:DeleteLoadBalancer
                 Resource: "arn:aws:elasticloadbalancing::*:*:loadbalancer/app/*"
               - Effect: "Allow"
-                Action: 
+                Action:
                   - iam:AddRoleToInstanceProfile
                   - iam:CreateInstanceProfile
                   - iam:DeleteInstanceProfile
+                  - iam:PassRole
+                  - iam:RemoveRoleFromInstanceProfile
+                  - iam:CreateServiceLinkedRole
+                Resource: 
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:instance-profile/${ClusterName}-BootnodeInstanceProfile-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${ClusterName}-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:instance-profile/${AWS::StackName}-BootnodeInstanceProfile-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/ManagedOpenShift-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.op1.openshiftapps.com/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:policy/*"
+              - Effect: "Allow"
+                Action:
+                  - iam:CreateOpenIDConnectProvider
+                Resource:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.op1.openshiftapps.com/*"
+              - Effect: "Allow"
+                Action:
+                  - iam:AttachRolePolicy
+                Resource:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:instance-profile/${ClusterName}-BootnodeInstanceProfile-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${ClusterName}-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:instance-profile/${AWS::StackName}-BootnodeInstanceProfile-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/ManagedOpenShift-*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.op1.openshiftapps.com/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:policy/*"
+              - Effect: "Allow"
+                Action: 
                   - iam:GetInstanceProfile
                   - iam:TagInstanceProfile
                   - iam:GetRole
@@ -460,17 +494,12 @@ Resources:
                   - iam:ListRoles
                   - iam:ListUserPolicies
                   - iam:ListUsers
-                  - iam:PassRole
-                  - iam:RemoveRoleFromInstanceProfile
                   - iam:SimulatePrincipalPolicy
                   - iam:UntagRole
                   - iam:GetUserPolicy
-                  - iam:ListAccessKeys
-                  - iam:CreateServiceLinkedRole
+                  - iam:ListAccessKeys                  
                   - iam:GetOpenIDConnectProvider
                   - iam:ListRoleTags
-                  - iam:AttachRolePolicy
-                  - iam:CreateOpenIDConnectProvider
                   - iam:CreateRole
                   - iam:ListPolicies
                   - iam:ListPolicyTags
@@ -554,6 +583,10 @@ Resources:
                   - sts:GetCallerIdentity
                   - sts:DecodeAuthorizationMessage
                 Resource: "*"
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/red-hat-managed: true
+                    aws:ResourceTag/ClusterName: !Sub "${ClusterName}"
               - Effect: "Allow"
                 Action: 
                   - cloudwatch:GetMetricData
@@ -584,37 +617,34 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - elasticfilesystem:*
-                Resource:
-                  - !Sub arn:aws:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:file-system/*
+                Resource: "*"
               - Effect: "Deny"
                 Action:
                   - elasticfilesystem:DeleteFileSystem*
                 Resource: "*"
                 Condition:
                   StringNotLike:
-                    aws:ResourceTag/Name:
-                      - !Sub "${ClusterName}*"
+                    aws:ResourceTag/Name: !Sub "${ClusterName}*"
               - Effect: "Allow"
                 Action: 
                   - ssm:SendCommand
                   - ssm:PutParameter
                   - ssm:GetParameter
                 Resource:
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*-OpenshiftURL"
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}-OpenshiftURL"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}_CleanupStatus"
                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/AWS-RunShellScript"    
               - Effect: Allow
                 Action:
                   - secretsmanager:PutSecretValue
                   - secretsmanager:UpdateSecret
-                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ClusterName}*'
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ClusterName}-*'
               - Effect: "Allow"
                 Action: 
                   - secretsmanager:GetSecretValue
-                Resource:
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*_CleanupStatus"
+                Resource: 
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ClusterName}_CleanupStatus"
                   - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ClusterName}*'
-
   OpenshiftURL:
     Type: AWS::SecretsManager::Secret
     Properties:
