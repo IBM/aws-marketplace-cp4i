@@ -55,9 +55,14 @@ Parameters:
   VPCID:
     Description: The ID of your existing Virtual Private Cloud (VPC) for deployment.
     Type: AWS::EC2::VPC::Id
+    AllowedPattern: \S+
+    ConstraintDescription: It must have value
+
   PrivateSubnet1ID:
     Description: The ID of the private subnet in Availability Zone 1 for the workload (e.g., subnet-a0246dcd).
     Type: String
+    AllowedPattern: \S+
+    ConstraintDescription: It must have value
   PrivateSubnet2ID:
     Description: The ID of the private subnet in Availability Zone 2 for the workload (e.g., subnet-b1f432cd). Required if the NumberOfAZs field is set to 3. However, if the NumberOfAZs field is set to 1, leave it empty.
     Type: String
@@ -67,6 +72,8 @@ Parameters:
   PublicSubnet1ID:
     Description: The ID of the public subnet in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac).
     Type: String
+    AllowedPattern: \S+
+    ConstraintDescription: It must have value
   PublicSubnet2ID:
     Description: The ID of the public subnet in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e). Required if the NumberOfAZs field is set to 3. However, if the NumberOfAZs field is set to 1, leave it empty.
     Type: String
@@ -77,6 +84,10 @@ Parameters:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
+    AllowedPattern: \S+
+    ConstraintDescription: It must have value
+
+
   BootNodeAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -99,6 +110,7 @@ Parameters:
   ServiceNetworkCIDR: 
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Description: The service network CIDR IP range for cluster services. (e.g., 172.30.0.0/16). Refer link for more details https://docs.openshift.com/rosa/networking/cidr-range-definitions.html#service-cidr-description .
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Type: String
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
@@ -114,7 +126,7 @@ Parameters:
     Description: API token to authenticate against your Red Hat OpenShift Cluster Manager account. Download ROSA token from https://console.redhat.com/openshift/token/show .
     Type: String
     AllowedPattern: \S+
-    ConstraintDescription: RosaToken must have value
+    ConstraintDescription: It must have value
     NoEcho: 'true'
   WorkerVMSize:
     Description: The size of the worker nodes.
