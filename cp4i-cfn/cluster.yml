@@ -22,7 +22,6 @@ Metadata:
       - Label: 
           default: Instance Configuration
         Parameters:
-          - Tenancy
           - KeyPairName
       - Label: 
           default: Openshift Configuration
@@ -44,14 +43,6 @@ Metadata:
           - PlatformUiNamespace
           - CloudPakLicense
 Parameters:
-  Tenancy:
-    Description: >-
-       Amazon EC2 instances tenancy type, default/dedicated.
-    Type: String
-    AllowedValues:
-      - "default"
-      - "dedicated"
-    Default: "default"
   VPCID:
     Description: The ID of your existing Virtual Private Cloud (VPC) for deployment.
     Type: AWS::EC2::VPC::Id
