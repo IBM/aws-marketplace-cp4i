@@ -106,7 +106,10 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
-    Default: "4.12.30"
+    Default: 4.12
+    AllowedValues:
+      - 4.12
+      - 4.14
   ClusterName:
     Default: "cp4irosa"
     Description: Custom cluster name for kubernetes.io/cluster/tags.
@@ -836,8 +839,11 @@ Resources:
             mv linux-amd64/helm /usr/local/bin/helm
 
             # Install openshift util version
-            wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OpenshiftVersion}/openshift-client-linux-${OpenshiftVersion}.tar.gz"
-            tar -xvf openshift-client-linux-${OpenshiftVersion}.tar.gz
+            # wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OpenshiftVersion}/openshift-client-linux-${OpenshiftVersion}.tar.gz"
+            # tar -xvf openshift-client-linux-${OpenshiftVersion}.tar.gz
+
+            wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-${OpenshiftVersion}/openshift-client-linux.tar.gz"
+            tar -xvzf openshift-client-linux.tar.gz 
             
             chmod u+x oc kubectl
             mv oc /usr/local/bin

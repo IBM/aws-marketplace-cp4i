@@ -3,7 +3,7 @@ set -e
 
 ### command with all arguments
 ##### create cluster
-### nohup ./rosa.sh --base-path=/home/ec2-user --operation=create --cluster-name=rosa-d01 --compute-machine-type=m5.4xlarge --replicas=3 --region=us-east-2 --machine-cidr=10.0.0.0/16 --service-cidr=172.30.0.0/16 --pod-cidr=10.128.0.0/14 --host-prefix=23 --private=false --multi-az=true --version=4.12.15 --subnets=subnet-5c7d2d610d4db25f,subnet-15bca0698e9b4c41,subnet-3ed7835a97324708,subnet-68bc9661bea107d1,subnet-5a6043f88f7c2461,subnet-a3646c21243f87f9 --fips=false --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
+### nohup ./rosa.sh --base-path=/home/ec2-user --operation=create --cluster-name=rosa-d01 --compute-machine-type=m5.4xlarge --replicas=3 --region=us-east-2 --machine-cidr=10.0.0.0/16 --service-cidr=172.30.0.0/16 --pod-cidr=10.128.0.0/14 --host-prefix=23 --private=false --multi-az=true --version=4.12 --subnets=subnet-5c7d2d610d4db25f,subnet-15bca0698e9b4c41,subnet-3ed7835a97324708,subnet-68bc9661bea107d1,subnet-5a6043f88f7c2461,subnet-a3646c21243f87f9 --fips=false --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
 ##### destroy cluster
 ### nohup ./rosa.sh --base-path=/home/ec2-user --operation=destroy --cluster-name=rosa-d01 --region=us-east-2 --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
 
@@ -175,9 +175,9 @@ function download_binaries() {
     tar -xvzf $installer_workspace/rosa-linux.tar.gz -C $installer_workspace/
     chmod u+x $installer_workspace/rosa
 
-    wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${version}/openshift-client-linux-${version}.tar.gz"
-    mv openshift-client-linux-${version}.tar.gz $installer_workspace/openshift-client-linux-${version}.tar.gz
-    tar -xvzf $installer_workspace/openshift-client-linux-${version}.tar.gz -C $installer_workspace/
+    wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-${version}/openshift-client-linux.tar.gz"
+    mv openshift-client-linux.tar.gz $installer_workspace/openshift-client-linux.tar.gz
+    tar -xvzf $installer_workspace/openshift-client-linux.tar.gz -C $installer_workspace/
             
     sudo chmod u+x $installer_workspace/oc $installer_workspace/kubectl
     sudo mv $installer_workspace/oc /usr/local/bin
@@ -228,10 +228,6 @@ function install_rosa_cluster() {
         private_link=""
     fi
 
-
-    version_arr=($(echo "$version" | tr "." " "))
-    rosa_major_minor_version=${version_arr[0]}.${version_arr[1]}
-
     # verify rosa quota
     $installer_workspace/rosa verify quota &&
     ecode=$?
@@ -239,7 +235,7 @@ function install_rosa_cluster() {
 
     # create rosa account IAM roles
     if [ $ecode == 0 ]; then
-        $installer_workspace/rosa create account-roles --mode auto --yes --version $rosa_major_minor_version \
+        $installer_workspace/rosa create account-roles --mode auto --yes --version $version \
         && $installer_workspace/rosa create oidc-config --yes --output json  --mode auto
         ecode=$?
         echo "***** rosa account role is created *****"
@@ -251,10 +247,14 @@ function install_rosa_cluster() {
     # install rosa cluster
     if [ $ecode == 0 ]; then
         sleep 60
+        
+        rosa_version=$(oc version | grep "Client Version" | awk '{print $3}')
+        echo "ROSA stable version..."$rosa_version
+
         echo "Triggering cluster creation...."
         $installer_workspace/rosa create cluster $private_link --cluster-name=$cluster_name --compute-machine-type=$compute_machine_type --replicas=$replicas \
          --region=$region --machine-cidr=$machine_cidr --service-cidr=$service_cidr --pod-cidr=$pod_cidr \
-         --host-prefix=$host_prefix --private=$private --multi-az=$multi_az --version=$version --subnet-ids=$rosa_subnets \
+         --host-prefix=$host_prefix --private=$private --multi-az=$multi_az --version=$rosa_version --subnet-ids=$rosa_subnets \
          --fips=$fips --watch --yes --sts --mode auto && $installer_workspace/rosa logs install --cluster=$cluster_name --watch
         ecode=$?
         echo "***** rosa cluster is created *****"
