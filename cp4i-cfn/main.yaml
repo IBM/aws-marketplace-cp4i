@@ -12,6 +12,7 @@
       branch: "main"
       version_uri: "https://raw.githubusercontent.com/IBM/azure-marketplace-arm-templates"
       version_path: "cloud-pak-for-integration/version-files"
+      ibm-entitlement-key:
     operator:
       scope: "namespace"
       namespace: "ibmint"
@@ -89,27 +90,6 @@
         exit 0
       when: not instanceNamespaceExists
 
-    - name: Check if entitlement key already exists
-      ansible.builtin.shell: |
-        set timeout 300
-        {{ directories.bin_dir }}/oc get secret -n {{ instance.namespace }} ibm-entitlement-key 2> /dev/null
-        exit 0
-      args:
-        executable: /bin/bash
-      register: query_returnedInfo
-
-    - name: Parse returned data to determine if secret already exists
-      set_fact:
-        secretExists: "{{True if(query_returnedInfo.stdout | length > 0) else False}}"
-
-    - name: Get IBM entitlement key if not provided and secret not created
-      ansible.builtin.pause:
-        prompt: "Please provide IBM entitlment key: "
-        echo: false
-      register: entitlementKey
-      when: 
-        - entitlementKey is not defined
-        - not secretExists
 
     - name: Create the entitlement key secret
       ansible.builtin.shell:

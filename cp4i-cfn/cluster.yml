@@ -223,14 +223,15 @@ Parameters:
   CloudPakVersion:
     Description: Cloud Pak for Integration version.
     Type: String
-    Default: "2022.2.1"
+    Default: "16.1.0"
   CloudPakLicense:
-    Description: IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN).
+    Description: IBM Cloud Pak for Integration 16.1.0 (L-JTPV-KYG8TF).
     Type: String
     AllowedValues:
       - "L-RJON-CD3JKX"
       - "L-RJON-CJR2WN"
-    Default: "L-RJON-CD3JKX"
+      - "L-JTPV-KYG8TF"
+    Default: "L-JTPV-KYG8TF"
 
 
 Mappings:
@@ -808,7 +809,6 @@ Resources:
             yum install -y yum-utils
             yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
             yum -y install terraform
-            yum install -y ansible
 
             podman version
 
@@ -828,6 +828,8 @@ Resources:
             /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
             #/opt/aws/apitools/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
 
+            pip3 install ansible 
+            
             cd /tmp
             qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
             qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
@@ -865,7 +867,7 @@ Resources:
             cd $HOME
 
             #clone scripts
-            git clone https://github.com/IBM/aws-marketplace-cp4i.git
+            git clone --branch v16.1.0  https://github.com/IBM/aws-marketplace-cp4i.git
             cp ./aws-marketplace-cp4i/cp4i-cfn/scripts/* $HOME/
             rm -rf $HOME/aws-marketplace-cp4i/
             chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh store-secrets.sh
@@ -917,14 +919,7 @@ Resources:
               exit 1;
             fi
 
-            # deploy CP4I
-            /bin/bash $HOME/deploy-cp4i.sh --base-path=$HOME \
-              --license=${LicenseAgreement} \
-              --ibm-entitlement-key=${EntitlementKey} \
-              --namespace=${PlatformUiNamespace} \
-              --intance-namespace=${PlatformUiNamespace} \
-              --version=${CloudPakVersion} \
-              --license-id=${CloudPakLicense}
+            ansible-playbook ./main.yaml --extra-vars "cloud_pak.license_accepted=${LicenseAgreement}  cloud_pak.ibm-entitlement-key==${EntitlementKey}"
             
             ecode=$?
 
