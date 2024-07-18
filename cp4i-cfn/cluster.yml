@@ -829,7 +829,7 @@ Resources:
             #/opt/aws/apitools/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
 
             pip3 install ansible 
-            
+
             cd /tmp
             qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
             qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
@@ -869,7 +869,7 @@ Resources:
             #clone scripts
             git clone --branch v16.1.0  https://github.com/IBM/aws-marketplace-cp4i.git
             cp ./aws-marketplace-cp4i/cp4i-cfn/scripts/* $HOME/
-            rm -rf $HOME/aws-marketplace-cp4i/
+            # rm -rf $HOME/aws-marketplace-cp4i/
             chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh store-secrets.sh
 
             if [ ${AZ} == "multi_zone"  ]; then
@@ -919,7 +919,8 @@ Resources:
               exit 1;
             fi
 
-            ansible-playbook ./main.yaml --extra-vars "cloud_pak.license_accepted=${LicenseAgreement}  cloud_pak.ibm-entitlement-key==${EntitlementKey}"
+            cd $HOME/aws-marketplace-cp4i/cp4i-cfn/
+            ansible-playbook main.yaml --extra-vars "cloud_pak.license_accepted=${LicenseAgreement}  cloud_pak.ibm_entitlement_key=${EntitlementKey}"
             
             ecode=$?
 
