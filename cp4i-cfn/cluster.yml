@@ -920,10 +920,55 @@ Resources:
             fi
 
             cd $HOME/aws-marketplace-cp4i/cp4i-cfn/
-            ansible-playbook main.yaml --extra-vars "cloud_pak.license_accepted=${LicenseAgreement}  cloud_pak.ibm_entitlement_key=${EntitlementKey}"
-            
-            ecode=$?
+            license = false
 
+            # Checking if lic equals 'accept'
+            if [ ${LicenseAgreement} = "accept" ]; then
+              license = true
+            fi
+
+            cred_path=$HOME/installer-files/.cred
+            credfile=$(cat $cred_path)
+            cluster_url=$(echo "$credfile" | grep -o 'https://[^ ]*')
+            cluster_username=$(echo "$credfile" | grep -oE -- '--username ([^ ]+)' | cut -d' ' -f2)
+            cluster_password=$(echo "$credfile" | grep -oE -- '--password ([^ ]+)' | cut -d' ' -f2)
+            
+            json=$(jq -n '
+            {
+                    log_level: "info",
+                    entitlementKey: ${EntitlementKey},
+                    cloud_pak: {
+                        version: ${CloudPakVersion},
+                        license: ${CloudPakLicense},
+                        license_accepted: $license,
+                        branch: "main",
+                        version_uri: "https://raw.githubusercontent.com/IBM/azure-marketplace-arm-templates",
+                        version_path: "cloud-pak-for-integration/version-files"
+                    },
+                    operator: {
+                        scope: "namespace",
+                        namespace: ${PlatformUiNamespace}
+                    },
+                    instance: {
+                        name: "integration-quickstart",
+                        namespace: ${PlatformUiNamespace}
+                    },
+                    cluster: {
+                        api_server: $cluster_url,
+                        username: $cluster_username,
+                        password: $cluster_password
+                    }
+            }')
+
+            # Escape the JSON string
+            escaped_json=$(jq -n --argjson data "$json" '$data | @json')
+
+            # Print the escaped JSON string
+            echo "$escaped_json"
+
+            ansible-playbook main.yaml --extra-vars $escaped_json
+
+            ecode=$?
             sudo chown -R ec2-user:ec2-user /home/ec2-user
             if [ $ecode -gt 0 ]; then
               echo "CP4I deployment is failed"

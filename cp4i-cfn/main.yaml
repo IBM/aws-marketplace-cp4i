@@ -4,6 +4,7 @@
 
   vars:
     ansible_python_interpreter: "/usr/bin/python3"
+    entitlementKey: "cfn_overrides_it"
     log_level: "info"
     cloud_pak:
       version: "16.1.0"
@@ -24,6 +25,10 @@
     directories:
       bin_dir: "/usr/local/bin"
       tmp_dir: "/tmp"
+    cluster:
+      api_server: "cluster_url"
+      username: "username"
+      password: "password"
     default:
       retries: 60
       retry_delay: 15
