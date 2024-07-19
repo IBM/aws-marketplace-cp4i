@@ -920,11 +920,11 @@ Resources:
             fi
 
             cd $HOME/aws-marketplace-cp4i/cp4i-cfn/
-            license = false
+            license_acpt=false
 
             # Checking if lic equals 'accept'
             if [ ${LicenseAgreement} = "accept" ]; then
-              license = true
+              license_acpt=true
             fi
 
             cred_path=$HOME/installer-files/.cred
@@ -933,14 +933,18 @@ Resources:
             cluster_username=$(echo "$credfile" | grep -oE -- '--username ([^ ]+)' | cut -d' ' -f2)
             cluster_password=$(echo "$credfile" | grep -oE -- '--password ([^ ]+)' | cut -d' ' -f2)
             
-            json=$(jq -n '
-            {
+            json=$(jq -n \
+              --arg license_acpt "$license_acpt" \
+              --arg cluster_url "$cluster_url" \
+              --arg cluster_username "$cluster_username" \
+              --arg cluster_password "$cluster_password" \
+              '{
                     log_level: "info",
                     entitlementKey: ${EntitlementKey},
                     cloud_pak: {
                         version: ${CloudPakVersion},
                         license: ${CloudPakLicense},
-                        license_accepted: $license,
+                        license_accepted: $license_acpt,
                         branch: "main",
                         version_uri: "https://raw.githubusercontent.com/IBM/azure-marketplace-arm-templates",
                         version_path: "cloud-pak-for-integration/version-files"
@@ -958,7 +962,7 @@ Resources:
                         username: $cluster_username,
                         password: $cluster_password
                     }
-            }')
+              }')
 
             # Escape the JSON string
             escaped_json=$(jq -n --argjson data "$json" '$data | @json')
