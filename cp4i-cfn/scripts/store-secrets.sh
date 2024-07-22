@@ -140,15 +140,16 @@ aws secretsmanager put-secret-value --secret-id "$clustername-cluster-login-comm
 echo "***** rosa cluster secrets are stored  *****"
 
 # Store cpi credentials to AWS Secrets Manager (sm)
-cpi_username_password_tmp=$(oc extract secret/platform-auth-idp-credentials -n ibm-common-services --to=-)
 
-username=$(oc get secret platform-auth-idp-credentials   -n ibm-common-services -o jsonpath='{.data.admin_username}'   | base64 -d)
-password=$(oc get secret platform-auth-idp-credentials   -n ibm-common-services -o jsonpath='{.data.admin_password}'   | base64 -d)
+#username=$(oc get secret platform-auth-idp-credentials   -n ibm-common-services -o jsonpath='{.data.admin_username}'   | base64 -d)
+username=$(oc get secret integration-admin-initial-temporary-credentials   -n $instance_namespace -o jsonpath='{.data.username}'   | base64 -d)
+#password=$(oc get secret platform-auth-idp-credentials   -n ibm-common-services -o jsonpath='{.data.admin_password}'   | base64 -d)
+password=$(oc get secret integration-admin-initial-temporary-credentials   -n $instance_namespace -o jsonpath='{.data.password}'   | base64 -d)
 
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Username" --secret-string "$username"
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Password" --secret-string "$password"
 
 # Store cpi url to Secrets Manager (sm)
-cpi_url=$(oc get routes cpd -n $instance_namespace -o jsonpath='{.spec.host}')
+cpi_url=$(oc get routes integration-quickstart-pn -n $instance_namespace -o jsonpath='{.spec.host}')
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-URL" --secret-string "$cpi_url"
 echo "***** CP4I secrets are stored  *****"

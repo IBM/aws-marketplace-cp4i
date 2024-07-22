@@ -106,7 +106,7 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
-    Default: 4.12
+    Default: 4.14
     AllowedValues:
       - 4.12
       - 4.14
@@ -475,7 +475,7 @@ Resources:
                 Action:
                   - iam:CreateOpenIDConnectProvider
                 Resource:
-                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.op1.openshiftapps.com/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/*"
               - Effect: "Allow"
                 Action:
                   - iam:AttachRolePolicy
@@ -939,33 +939,35 @@ Resources:
               --arg cluster_username "$cluster_username" \
               --arg cluster_password "$cluster_password" \
               '{
-                    log_level: "info",
-                    entitlementKey: ${EntitlementKey},
-                    cloud_pak: {
-                        version: ${CloudPakVersion},
-                        license: ${CloudPakLicense},
-                        license_accepted: $license_acpt,
-                        branch: "main",
-                        version_uri: "https://raw.githubusercontent.com/IBM/azure-marketplace-arm-templates",
-                        version_path: "cloud-pak-for-integration/version-files"
+                    "log_level": "info",
+                    "entitlementKey": "${EntitlementKey}",
+                    "cloud_pak": {
+                        "version": "${CloudPakVersion}",
+                        "license": "${CloudPakLicense}",
+                        "license_accepted": "'$license_acpt'",
+                        "branch": "main",
+                        "version_uri": "https://raw.githubusercontent.com/IBM/azure-marketplace-arm-templates",
+                        "version_path": "cloud-pak-for-integration/version-files"
                     },
-                    operator: {
-                        scope: "namespace",
-                        namespace: ${PlatformUiNamespace}
+                    "operator": {
+                        "scope": "namespace",
+                        "namespace": "${PlatformUiNamespace}"
                     },
                     instance: {
-                        name: "integration-quickstart",
-                        namespace: ${PlatformUiNamespace}
+                        "name": "integration-quickstart",
+                        "namespace": "${PlatformUiNamespace}"
                     },
-                    cluster: {
-                        api_server: $cluster_url,
-                        username: $cluster_username,
-                        password: $cluster_password
+                    "cluster": {
+                        "api_server": "'$cluster_url'",
+                        "username": "'$cluster_username'",
+                        "password": "'$cluster_password'"
                     }
               }')
 
             # Escape the JSON string
-            escaped_json=$(jq -n --argjson data "$json" '$data | @json')
+            #escaped_json=$(jq -n --argjson data "$json" '$data | @json')
+            escaped_json=$(echo "$json" | jq -c .)
+
 
             # Print the escaped JSON string
             echo "$escaped_json"
