@@ -45,6 +45,21 @@
         file: install-oc.yaml
       when: not oc_file.stat.exists
 
+    - name: Print values of variables
+      debug:
+        msg:
+          - "entitlementKey: {{ entitlementKey }}"
+          - "cloud_pak.version: {{ cloud_pak.version }}"
+          - "cloud_pak.license: {{ cloud_pak.license }}"
+          - "cloud_pak.license_accepted: {{ cloud_pak.license_accepted }}"
+          - "operator.scope: {{ operator.scope }}"
+          - "operator.namespace: {{ operator.namespace }}"
+          - "instance.name: {{ instance.name }}"
+          - "instance.namespace: {{ instance.namespace }}"
+          - "cluster.api_server: {{ cluster.api_server }}"
+          - "cluster.username: {{ cluster.username }}"
+          - "cluster.password: {{ cluster.password }}"
+
     - name: Check if already logged into cluster
       ansible.builtin.shell: |
         set timeout 30
