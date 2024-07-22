@@ -48,7 +48,6 @@
     - name: Print values of variables
       debug:
         msg:
-          - "entitlementKey: {{ entitlementKey }}"
           - "cloud_pak.version: {{ cloud_pak.version }}"
           - "cloud_pak.license: {{ cloud_pak.license }}"
           - "cloud_pak.license_accepted: {{ cloud_pak.license_accepted }}"
@@ -58,7 +57,7 @@
           - "instance.namespace: {{ instance.namespace }}"
           - "cluster.api_server: {{ cluster.api_server }}"
           - "cluster.username: {{ cluster.username }}"
-          - "cluster.password: {{ cluster.password }}"
+    #     - "cluster.password: {{ cluster.password }}"
 
     - name: Check if already logged into cluster
       ansible.builtin.shell: |
