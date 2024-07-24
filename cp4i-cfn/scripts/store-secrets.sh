@@ -72,7 +72,7 @@ function oc_login() {
 }
 
 
-SHORT=bp:,cn:,in:,h
+SHORT=bp:,cn:,in:,pn:,h
 LONG=base-path:,cluster-name:,instance-namespace:,help
 OPTS=$(getopt -a -n weather --options $SHORT --longoptions $LONG -- "$@")
 
@@ -91,6 +91,10 @@ do
       ;;
     -in | --instance-namespace )
       instance_namespace="$2"
+      shift 2
+      ;;
+    -pn | --instance-name )
+      instance_name="$2"
       shift 2
       ;;
 
@@ -150,6 +154,6 @@ aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Username" --s
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-Password" --secret-string "$password"
 
 # Store cpi url to Secrets Manager (sm)
-cpi_url=$(oc get routes integration-quickstart-pn -n $instance_namespace -o jsonpath='{.spec.host}')
+cpi_url=$(oc get routes "$instance_name-pn" -n $instance_namespace -o jsonpath='{.spec.host}')
 aws secretsmanager put-secret-value --secret-id "$clustername-CP4I-URL" --secret-string "$cpi_url"
 echo "***** CP4I secrets are stored  *****"
