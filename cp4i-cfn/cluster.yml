@@ -41,6 +41,7 @@ Metadata:
           - LicenseAgreement
           - CloudPakVersion
           - PlatformUiNamespace
+          - PlatformInstanceName
           - CloudPakLicense
 Parameters:
   VPCID:
@@ -220,6 +221,12 @@ Parameters:
     Description: OpenShift namespace where you want to install the Platform UI.
     Type: String
     Default: cp4i    
+  PlatformInstanceName:
+    Description: Name for the Platform Navigator instance.
+    Type: String
+    Default: integration-quickstart
+    AllowedPattern: \S+
+    ConstraintDescription: PlatformInstanceName must have value
   CloudPakVersion:
     Description: Cloud Pak for Integration version.
     Type: String
@@ -954,7 +961,7 @@ Resources:
                         "namespace": "${PlatformUiNamespace}"
                     },
                     instance: {
-                        "name": "integration-quickstart",
+                        "name": "${PlatformInstanceName}",
                         "namespace": "${PlatformUiNamespace}"
                     },
                     "cluster": {
@@ -981,7 +988,7 @@ Resources:
               /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
               exit 1;
             else
-              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${PlatformUiNamespace} || true
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${PlatformUiNamespace}  --platform-name=${PlatformInstanceName} || true
             fi
 
             ecode=$?
