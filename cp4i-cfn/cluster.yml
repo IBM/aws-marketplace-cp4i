@@ -107,9 +107,9 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
-    Default: 4.14
+    Default: 4.15
     AllowedValues:
-      - 4.12
+      - 4.15
       - 4.14
   ClusterName:
     Default: "cp4irosa"
