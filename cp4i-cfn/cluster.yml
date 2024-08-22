@@ -107,10 +107,9 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
-    Default: 4.15
+    Default: 4.16
     AllowedValues:
-      - 4.15
-      - 4.14
+      - 4.16
   ClusterName:
     Default: "cp4irosa"
     Description: Custom cluster name for kubernetes.io/cluster/tags.
@@ -235,8 +234,6 @@ Parameters:
     Description: IBM Cloud Pak for Integration 16.1.0 (L-JTPV-KYG8TF).
     Type: String
     AllowedValues:
-      - "L-RJON-CD3JKX"
-      - "L-RJON-CJR2WN"
       - "L-JTPV-KYG8TF"
     Default: "L-JTPV-KYG8TF"
 
