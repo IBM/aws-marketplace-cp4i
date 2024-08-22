@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Template for CP4I deployment.
+Description: Template for CP4I deployment on ROSA.
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -231,10 +231,11 @@ Parameters:
     Type: String
     Default: "16.1.0"
   CloudPakLicense:
-    Description: IBM Cloud Pak for Integration 16.1.0 (L-JTPV-KYG8TF).
+    Description: IBM Cloud Pak for Integration LTS 16.1.0 (L-JTPV-KYG8TF). IBM Cloud Pak for Integration Reserved 16.1.0 (L-BMSF-5YDSLR)
     Type: String
     AllowedValues:
       - "L-JTPV-KYG8TF"
+      - "L-BMSF-5YDSLR"
     Default: "L-JTPV-KYG8TF"
 
 
