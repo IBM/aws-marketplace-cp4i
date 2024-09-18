@@ -242,9 +242,9 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      BootNodeAmiId: ami-0adcf0020317f5ce0
+      BootNodeAmiId: ami-0583d8c7a9c35822c
     us-east-2:
-      BootNodeAmiId: ami-092b43193629811af
+      BootNodeAmiId: ami-09004c678d306c496
     us-west-1:
       BootNodeAmiId: ami-0186e3fec9b0283ee
     us-west-2:
