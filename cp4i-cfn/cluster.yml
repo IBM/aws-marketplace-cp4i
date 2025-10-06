@@ -107,9 +107,9 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
-    Default: 4.16
+    Default: 4.18
     AllowedValues:
-      - 4.16
+      - 4.18
   ClusterName:
     Default: "cp4irosa"
     Description: Custom cluster name for kubernetes.io/cluster/tags.
@@ -809,9 +809,9 @@ Resources:
             #!/bin/bash -x
 
             # Install utils
-            yum update
-            yum install -y git podman wget jq python39 unzip yum-utils gettext
-            yum install -y yum-utils
+            yum update -y
+            yum install -y git podman wget jq python3.12 unzip yum-utils gettext
+            yum install -y python3-pip
             yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
             yum -y install terraform
 
@@ -819,28 +819,30 @@ Resources:
 
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            ./aws/install &> /var/log/userdata.awscli_install.log
-            cp /usr/local/bin/aws /usr/bin/
+            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+            echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
+            source ~/.bashrc
 
-            git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
-            sed -i "s/aws-cfn-bootstrap-latest.tar.gz/aws-cfn-bootstrap-py3-latest.tar.gz/g" /quickstart-linux-utilities/quickstart-cfn-tools.source 
-            export P=/quickstart-linux-utilities/quickstart-cfn-tools.source
-            source $P
+            #git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
+            #sed -i "s/aws-cfn-bootstrap-latest.tar.gz/aws-cfn-bootstrap-py3-latest.tar.gz/g" /quickstart-linux-utilities/quickstart-cfn-tools.source 
+            #export P=/quickstart-linux-utilities/quickstart-cfn-tools.source
+            #source $P
             
-            qs_bootstrap_pip || qs_err " pip bootstrap failed "
-            qs_aws-cfn-bootstrap || qs_err "cfn bootstrap failed"
-            pip3 install awscli  &> /var/log/userdata.awscli_install.log || qs_err " awscli install failed "
+            #qs_bootstrap_pip || qs_err " pip bootstrap failed "
+            #qs_aws-cfn-bootstrap || qs_err "cfn bootstrap failed"
+            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
             /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
             #/opt/aws/apitools/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
 
             pip3 install ansible 
 
             cd /tmp
-            qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
-            qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
+            dnf install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+            #qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
+            #qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
             systemctl start amazon-ssm-agent
             systemctl enable amazon-ssm-agent
-            rm -f ./amazon-ssm-agent.rpm
+            #rm -f ./amazon-ssm-agent.rpm
 
             wget https://get.helm.sh/helm-v3.9.4-linux-amd64.tar.gz
             tar -zxvf helm-v3.9.4-linux-amd64.tar.gz 
