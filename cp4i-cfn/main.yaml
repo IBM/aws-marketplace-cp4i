@@ -10,7 +10,7 @@
       version: "16.1.0"
       license: "L-JTPV-KYG8TF"
       license_accepted: false
-      branch: "main"
+      branch: "master"
       version_uri: "https://raw.githubusercontent.com/IBM/aws-marketplace-cp4i"
       version_path: "cp4i-cfn/version-files"
     operator:
