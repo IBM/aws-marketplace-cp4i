@@ -1,0 +1,17 @@
+---
+ansible_python_interpreter: "/usr/bin/python3.11"
+log_level: "info"
+cloud_pak:
+  version: "16.1.0"
+  license: "L-JTPV-KYG8TF"
+  license_accepted: true
+  branch: "master"
+  version_uri: "https://raw.githubusercontent.com/IBM/aws-marketplace-cp4i"
+  version_path: "cp4i-cfn/version-files"
+operator:
+  scope: "namespace"
+  namespace: "ibmint"
+instance:
+  name: "integration-quickstart"
+  namespace: "ibmint"
+entitlementKey: "ibm-key"

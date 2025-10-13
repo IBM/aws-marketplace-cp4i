@@ -1,0 +1,262 @@
+{
+  "defaults": {
+    "namespace": "ibmint",
+    "instanceNamespace": "ibmint",
+    "clusterScoped": "false",
+    "replicas": 1,
+    "storage_class": "ocs-storagecluster-cephfs",
+    "pnInstanceYaml": "pn-instance-2023-4-1.yaml"
+  },
+  "catalogSources": [
+    {
+      "name": "ibm-integration-platform-navigator-catalog",
+      "displayName": "ibm-integration-platform-navigator-7.3.18",
+      "image": "icr.io/cpopen/ibm-integration-platform-navigator-catalog@sha256:4ce5dbae7ce78f0ff632bb106f83bfd85ceff32126ee3f2f1203f869b090e60f",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-integration-asset-repository-catalog",
+      "displayName": "ibm-integration-asset-repository-1.7.14-linux-amd64",
+      "image": "icr.io/cpopen/ibm-integration-asset-repository-catalog@sha256:9d2f78e92ee0764a99c525c5d998ba68b66cf4104cea364d85016c976de75ec2",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-apiconnect-catalog",
+      "displayName": "ibm-apiconnect-5.2.0",
+      "image": "icr.io/cpopen/ibm-apiconnect-catalog@sha256:61f52267bff3beb4455636763af4c95c6a5b7bc57b159ce0846d53364f2d4134",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-datapower-operator-catalog",
+      "displayName": "ibm-datapower-operator-1.11.8",
+      "image": "icr.io/cpopen/datapower-operator-catalog@sha256:41ba87783a176b9e9315a522b04a93d53447b21f97591efa7d5610f28ab8e4b1",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "appconnect-operator-catalogsource",
+      "displayName": "ibm-appconnect-12.0.16",
+      "image": "icr.io/cpopen/appconnect-operator-catalog@sha256:e044613f6869557ab3f4ad8efe380bbbcf1c41b1bb7cdadc85da2d82ee00f727",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibmmq-operator-catalogsource",
+      "displayName": "ibm-mq-3.2.16",
+      "image": "icr.io/cpopen/ibm-mq-operator-catalog@sha256:53f466da6b06e735de92bb8ef96dd180d93f99dc8ae9a466ce5c56ce0fb0a2b4",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-eventstreams",
+      "displayName": "ibm-eventstreams-12.0.2",
+      "image": "icr.io/cpopen/ibm-eventstreams-catalog@sha256:3463090457277471b51e0f50890a744600b515a453fa32045bf77c98b65a6ddb",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-eventendpointmanagement-catalog",
+      "displayName": "ibm-eventendpointmanagement-11.6.4",
+      "image": "icr.io/cpopen/ibm-eventendpointmanagement-operator-catalog@sha256:b293422dbcabb76e48c9832b4b65b5f56a014fbd0b328b50c1b42476130772b0",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "aspera-operators",
+      "displayName": "ibm-aspera-hsts-operator-1.5.18",
+      "image": "icr.io/cpopen/aspera-hsts-catalog@sha256:e11dc2f64e214ce4622abad93219c6725221dccb00804e75bf4f9c4b2c88f68a",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-cloud-databases-redis-operator-catalog",
+      "displayName": "ibm-cloud-databases-redis-1.6.11",
+      "image": "icr.io/cpopen/ibm-cloud-databases-redis-catalog@sha256:dbdafdc70600a84099bd11df76b7a6728cbada513a1e06fefbc08f38406e3636",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "cloud-native-postgresql-catalog",
+      "displayName": "ibm-cloud-native-postgresql-4.25.0",
+      "image": "icr.io/cpopen/ibm-cpd-cloud-native-postgresql-operator-catalog@sha256:0b46a3ec66622dd4a96d96243602a21d7a29cd854f67a876ad745ec524337a1f",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-cs-iam-catalog",
+      "displayName": "ibm-cs-iam-4.5.2",
+      "image": "icr.io/cpopen/ibm-iam-operator-catalog@sha256:b9ceffa5a688c95e1512e90e2b397bcc4b8d7208bebfe7c0715765cff6a46de7",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-cs-install-catalog",
+      "displayName": "ibm-cs-install-4.6.3",
+      "image": "icr.io/cpopen/ibm-cs-install-catalog@sha256:f31a492fed15bd945d9298f700aadbea5bd9e502f70d47c416a878e0162d2dbe",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-events-operator-catalog",
+      "displayName": "ibm-events-operator-5.0.1",
+      "image": "icr.io/cpopen/ibm-events-operator-catalog@sha256:4cd92e1a78b080cc94beae89c257078314a6a0fae66e8a14512953b1c4004c09",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "ibm-zen-operator-catalog",
+      "displayName": "ibm-zen-3.1.5",
+      "image": "icr.io/cpopen/ibm-zen-operator-catalog@sha256:d89d5ba29fa208d4a3664d889874171cc451e20d6f67d7ca0abb8633adf89b8b",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    },
+    {
+      "name": "opencloud-operators",
+      "displayName": "ibm-cp-common-services-4.6.3",
+      "image": "icr.io/cpopen/ibm-common-service-catalog@sha256:93684df9c216eee6f26cab3f9dab69e1844a9e2b2bcea1261d578b1670346e02",
+      "publisher": "IBM",
+      "sourceType": "grpc",
+      "registryUpdate": "30m0s"
+    }
+  ],
+  "subscriptions": [
+    {
+      "name": "Red Hat Certificate Manager",
+      "metadata": {
+        "name": "openshift-cert-manager-operator"
+      },
+      "spec": {
+        "name": "openshift-cert-manager-operator",
+        "channel": "stable-v1",
+        "source": "redhat-operators",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM Cloud Pak for Integration Platform Navigator",
+      "metadata": {
+        "name": "ibm-integration-platform-navigator-catalog-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-integration-platform-navigator",
+        "channel": "v7.3-sc2",
+        "source": "ibm-integration-platform-navigator-catalog",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM Automation foundation assets",
+      "metadata": {
+        "name": "ibm-integration-asset-repository-catalog-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-integration-asset-repository",
+        "channel": "v1.7-sc2",
+        "source": "ibm-integration-asset-repository-catalog",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM API Connect",
+      "metadata": {
+        "name": "ibm-apiconnect-catalog-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-apiconnect",
+        "channel": "v5.2-sc2",
+        "source": "ibm-apiconnect-catalog",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM App Connect",
+      "metadata": {
+        "name": "appconnect-operator-catalogsource-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-appconnect",
+        "channel": "v12.0-sc2",
+        "source": "appconnect-operator-catalogsource",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM MQ",
+      "metadata": {
+        "name": "ibmmq-operator-catalogsource-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-mq",
+        "channel": "v3.2-sc2",
+        "source": "ibmmq-operator-catalogsource",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM Event Streams",
+      "metadata": {
+        "name": "ibm-eventstreams-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-eventstreams",
+        "channel": "v12.0",
+        "source": "ibm-eventstreams",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM Event Endpoint Management",
+      "metadata": {
+        "name": "ibm-eventendpointmanagement-catalog-openshift-marketplace"
+      },
+      "spec": {
+        "name": "ibm-eventendpointmanagement",
+        "channel": "v11.6",
+        "source": "ibm-eventendpointmanagement-catalog",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM Aspera HSTS",
+      "metadata": {
+        "name": "aspera-operators-openshift-marketplace"
+      },
+      "spec": {
+        "name": "aspera-hsts-operator",
+        "channel": "v1.5",
+        "source": "aspera-operators",
+        "installPlanApproval": "Automatic"
+      }
+    },
+    {
+      "name": "IBM Cloud Pak foundational services",
+      "metadata": {
+        "name": "ibm-common-service-operator-marketplace"
+      },
+      "spec": {
+        "name": "ibm-common-service-operator",
+        "channel": "v4.6",
+        "source": "opencloud-operators",
+        "installPlanApproval": "Automatic"
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Template for CP4I deployment.
+Description: Template for CP4I deployment on ROSA.
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -41,6 +41,7 @@ Metadata:
           - LicenseAgreement
           - CloudPakVersion
           - PlatformUiNamespace
+          - PlatformInstanceName
           - CloudPakLicense
 Parameters:
   VPCID:
@@ -106,10 +107,9 @@ Parameters:
   OpenshiftVersion:
     Description: Choose Red Hat OpenShift Service on AWS (ROSA) Version.
     Type: String
-    Default: 4.12
+    Default: 4.18
     AllowedValues:
-      - 4.12
-      - 4.14
+      - 4.18
   ClusterName:
     Default: "cp4irosa"
     Description: Custom cluster name for kubernetes.io/cluster/tags.
@@ -220,25 +220,31 @@ Parameters:
     Description: OpenShift namespace where you want to install the Platform UI.
     Type: String
     Default: cp4i    
+  PlatformInstanceName:
+    Description: Name for the Platform Navigator instance.
+    Type: String
+    Default: integration-quickstart
+    AllowedPattern: \S+
+    ConstraintDescription: PlatformInstanceName must have value
   CloudPakVersion:
     Description: Cloud Pak for Integration version.
     Type: String
-    Default: "2022.2.1"
+    Default: "16.1.0"
   CloudPakLicense:
-    Description: IBM Cloud Pak for Integration 2022.2.1 (L-RJON-CD3JKX). IBM Cloud Pak for Integration Reserved 2022.2.1 (L-RJON-CJR2WN).
+    Description: IBM Cloud Pak for Integration LTS 16.1.0 (L-JTPV-KYG8TF). IBM Cloud Pak for Integration Reserved 16.1.0 (L-BMSF-5YDSLR)
     Type: String
     AllowedValues:
-      - "L-RJON-CD3JKX"
-      - "L-RJON-CJR2WN"
-    Default: "L-RJON-CD3JKX"
+      - "L-JTPV-KYG8TF"
+      - "L-BMSF-5YDSLR"
+    Default: "L-JTPV-KYG8TF"
 
 
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      BootNodeAmiId: ami-0adcf0020317f5ce0
+      BootNodeAmiId: ami-0583d8c7a9c35822c
     us-east-2:
-      BootNodeAmiId: ami-092b43193629811af
+      BootNodeAmiId: ami-09004c678d306c496
     us-west-1:
       BootNodeAmiId: ami-0186e3fec9b0283ee
     us-west-2:
@@ -474,7 +480,7 @@ Resources:
                 Action:
                   - iam:CreateOpenIDConnectProvider
                 Resource:
-                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.op1.openshiftapps.com/*"
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/*"
               - Effect: "Allow"
                 Action:
                   - iam:AttachRolePolicy
@@ -803,9 +809,9 @@ Resources:
             #!/bin/bash -x
 
             # Install utils
-            yum update
-            yum install -y git podman wget jq python39 unzip yum-utils gettext
-            yum install -y yum-utils
+            yum update -y
+            yum install -y git podman wget jq python3.12 unzip yum-utils gettext
+            yum install -y python3-pip
             yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
             yum -y install terraform
 
@@ -813,26 +819,30 @@ Resources:
 
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            ./aws/install &> /var/log/userdata.awscli_install.log
-            cp /usr/local/bin/aws /usr/bin/
+            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+            echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
+            source ~/.bashrc
 
-            git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
-            sed -i "s/aws-cfn-bootstrap-latest.tar.gz/aws-cfn-bootstrap-py3-latest.tar.gz/g" /quickstart-linux-utilities/quickstart-cfn-tools.source 
-            export P=/quickstart-linux-utilities/quickstart-cfn-tools.source
-            source $P
+            #git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
+            #sed -i "s/aws-cfn-bootstrap-latest.tar.gz/aws-cfn-bootstrap-py3-latest.tar.gz/g" /quickstart-linux-utilities/quickstart-cfn-tools.source 
+            #export P=/quickstart-linux-utilities/quickstart-cfn-tools.source
+            #source $P
             
-            qs_bootstrap_pip || qs_err " pip bootstrap failed "
-            qs_aws-cfn-bootstrap || qs_err "cfn bootstrap failed"
-            pip3 install awscli  &> /var/log/userdata.awscli_install.log || qs_err " awscli install failed "
+            #qs_bootstrap_pip || qs_err " pip bootstrap failed "
+            #qs_aws-cfn-bootstrap || qs_err "cfn bootstrap failed"
+            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
             /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
             #/opt/aws/apitools/cfn-init -v --stack ${AWS::StackName} --resource BootnodeInstance --configsets Required --region ${AWS::Region}
 
+            pip3 install ansible 
+
             cd /tmp
-            qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
-            qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
+            dnf install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+            #qs_retry_command 10 wget https://s3-us-west-1.amazonaws.com/amazon-ssm-us-west-1/latest/linux_amd64/amazon-ssm-agent.rpm
+            #qs_retry_command 10 yum install -y ./amazon-ssm-agent.rpm
             systemctl start amazon-ssm-agent
             systemctl enable amazon-ssm-agent
-            rm -f ./amazon-ssm-agent.rpm
+            #rm -f ./amazon-ssm-agent.rpm
 
             wget https://get.helm.sh/helm-v3.9.4-linux-amd64.tar.gz
             tar -zxvf helm-v3.9.4-linux-amd64.tar.gz 
@@ -864,9 +874,9 @@ Resources:
             cd $HOME
 
             #clone scripts
-            git clone https://github.com/IBM/aws-marketplace-cp4i.git
+            git clone --branch master  https://github.com/IBM/aws-marketplace-cp4i.git
             cp ./aws-marketplace-cp4i/cp4i-cfn/scripts/* $HOME/
-            rm -rf $HOME/aws-marketplace-cp4i/
+            # rm -rf $HOME/aws-marketplace-cp4i/
             chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh store-secrets.sh
 
             if [ ${AZ} == "multi_zone"  ]; then
@@ -916,24 +926,69 @@ Resources:
               exit 1;
             fi
 
-            # deploy CP4I
-            /bin/bash $HOME/deploy-cp4i.sh --base-path=$HOME \
-              --license=${LicenseAgreement} \
-              --ibm-entitlement-key=${EntitlementKey} \
-              --namespace=${PlatformUiNamespace} \
-              --intance-namespace=${PlatformUiNamespace} \
-              --version=${CloudPakVersion} \
-              --license-id=${CloudPakLicense}
-            
-            ecode=$?
+            cd $HOME/aws-marketplace-cp4i/cp4i-cfn/
+            license_acpt=false
 
+            # Checking if lic equals 'accept'
+            if [ ${LicenseAgreement} = "accept" ]; then
+              license_acpt=true
+            fi
+
+            cred_path=$HOME/installer-files/.cred
+            credfile=$(cat $cred_path)
+            cluster_url=$(echo "$credfile" | grep -o 'https://[^ ]*')
+            cluster_username=$(echo "$credfile" | grep -oE -- '--username ([^ ]+)' | cut -d' ' -f2)
+            cluster_password=$(echo "$credfile" | grep -oE -- '--password ([^ ]+)' | cut -d' ' -f2)
+            
+            json=$(jq -n \
+              --argjson license_acpt "$license_acpt" \
+              --arg cluster_url "$cluster_url" \
+              --arg cluster_username "$cluster_username" \
+              --arg cluster_password "$cluster_password" \
+              '{
+                    "log_level": "info",
+                    "entitlementKey": "${EntitlementKey}",
+                    "cloud_pak": {
+                        "version": "${CloudPakVersion}",
+                        "license": "${CloudPakLicense}",
+                        "license_accepted": $license_acpt,
+                        "branch": "master",
+                        "version_uri": "https://raw.githubusercontent.com/IBM/aws-marketplace-cp4i",
+                        "version_path": "cp4i-cfn/version-files"
+                    },
+                    "operator": {
+                        "scope": "namespace",
+                        "namespace": "${PlatformUiNamespace}"
+                    },
+                    instance: {
+                        "name": "${PlatformInstanceName}",
+                        "namespace": "${PlatformUiNamespace}"
+                    },
+                    "cluster": {
+                        "api_server": "'$cluster_url'",
+                        "username": "'$cluster_username'",
+                        "password": "'$cluster_password'"
+                    }
+              }')
+
+            # Escape the JSON string
+            #escaped_json=$(jq -n --argjson data "$json" '$data | @json')
+            escaped_json=$(echo "$json" | jq -c .)
+
+
+            # Print the escaped JSON string
+            echo "$escaped_json"
+
+            ansible-playbook main.yaml --extra-vars $escaped_json
+
+            ecode=$?
             sudo chown -R ec2-user:ec2-user /home/ec2-user
             if [ $ecode -gt 0 ]; then
               echo "CP4I deployment is failed"
               /usr/local/bin/cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at /var/log/cloud-init-output.log" $ICPDInstallationCompletedURL
               exit 1;
             else
-              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${PlatformUiNamespace} || true
+              /bin/bash $HOME/store-secrets.sh --base-path=$HOME --cluster-name=${ClusterName} --instance-namespace=${PlatformUiNamespace}  --platform-name=${PlatformInstanceName} || true
             fi
 
             ecode=$?
