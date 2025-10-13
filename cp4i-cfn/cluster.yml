@@ -952,9 +952,9 @@ Resources:
                         "version": "${CloudPakVersion}",
                         "license": "${CloudPakLicense}",
                         "license_accepted": $license_acpt,
-                        "branch": "main",
-                        "version_uri": "https://raw.githubusercontent.com/IBM/azure-marketplace-arm-templates",
-                        "version_path": "cloud-pak-for-integration/version-files"
+                        "branch": "master",
+                        "version_uri": "https://raw.githubusercontent.com/IBM/aws-marketplace-cp4i",
+                        "version_path": "cp4i-cfn/version-files"
                     },
                     "operator": {
                         "scope": "namespace",
