@@ -10,16 +10,16 @@
   "catalogSources": [
     {
       "name": "ibm-integration-platform-navigator-catalog",
-      "displayName": "ibm-integration-platform-navigator-7.3.0",
-      "image": "icr.io/cpopen/ibm-integration-platform-navigator-catalog@sha256:80ce1e6752d359870237ed30ba24f6271241e499e546214f30f4eb0962ec5029",
+      "displayName": "ibm-integration-platform-navigator-7.3.18",
+      "image": "icr.io/cpopen/ibm-integration-platform-navigator-catalog@sha256:4ce5dbae7ce78f0ff632bb106f83bfd85ceff32126ee3f2f1203f869b090e60f",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
     },
     {
       "name": "ibm-integration-asset-repository-catalog",
-      "displayName": "ibm-integration-asset-repository-1.7.0-linux-amd64",
-      "image": "icr.io/cpopen/ibm-integration-asset-repository-catalog@sha256:cdfee2604f4c20f79668e6f7cadeec88d98ea45e8a1624cd520d48794e4c391a",
+      "displayName": "ibm-integration-asset-repository-1.7.14-linux-amd64",
+      "image": "icr.io/cpopen/ibm-integration-asset-repository-catalog@sha256:9d2f78e92ee0764a99c525c5d998ba68b66cf4104cea364d85016c976de75ec2",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
@@ -42,24 +42,24 @@
     },
     {
       "name": "appconnect-operator-catalogsource",
-      "displayName": "ibm-appconnect-12.0.0",
-      "image": "icr.io/cpopen/appconnect-operator-catalog@sha256:c169dc7f7cdf9dda3c6ae20a999784d6a38ee5934aa7f2b30a6bb19bbf88829a",
+      "displayName": "ibm-appconnect-12.0.16",
+      "image": "icr.io/cpopen/appconnect-operator-catalog@sha256:e044613f6869557ab3f4ad8efe380bbbcf1c41b1bb7cdadc85da2d82ee00f727",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
     },
     {
       "name": "ibmmq-operator-catalogsource",
-      "displayName": "ibm-mq-3.2.1",
-      "image": "icr.io/cpopen/ibm-mq-operator-catalog@sha256:1259e16cd953d39bb0e722b45f17c3e26c7db44ee9ed55c1ece9556434672295",
+      "displayName": "ibm-mq-3.2.16",
+      "image": "icr.io/cpopen/ibm-mq-operator-catalog@sha256:53f466da6b06e735de92bb8ef96dd180d93f99dc8ae9a466ce5c56ce0fb0a2b4",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
     },
     {
       "name": "ibm-eventstreams",
-      "displayName": "ibm-eventstreams-3.4.0",
-      "image": "icr.io/cpopen/ibm-eventstreams-catalog@sha256:786c707f975b9b0626f3626565ce6800acdbdda31b3170cce580ae4e4857df1d",
+      "displayName": "ibm-eventstreams-12.0.2",
+      "image": "icr.io/cpopen/ibm-eventstreams-catalog@sha256:3463090457277471b51e0f50890a744600b515a453fa32045bf77c98b65a6ddb",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
@@ -217,7 +217,7 @@
       },
       "spec": {
         "name": "ibm-eventstreams",
-        "channel": "v3.4",
+        "channel": "v12.0",
         "source": "ibm-eventstreams",
         "installPlanApproval": "Automatic"
       }
