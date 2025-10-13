@@ -874,7 +874,7 @@ Resources:
             cd $HOME
 
             #clone scripts
-            git clone --branch v16.1.0  https://github.com/IBM/aws-marketplace-cp4i.git
+            git clone --branch master  https://github.com/IBM/aws-marketplace-cp4i.git
             cp ./aws-marketplace-cp4i/cp4i-cfn/scripts/* $HOME/
             # rm -rf $HOME/aws-marketplace-cp4i/
             chmod u+x deploy-cp4i.sh install-rosa.sh setup-efs.sh store-secrets.sh
