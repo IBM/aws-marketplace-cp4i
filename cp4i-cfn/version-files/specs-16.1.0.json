@@ -34,8 +34,8 @@
     },
     {
       "name": "ibm-datapower-operator-catalog",
-      "displayName": "ibm-datapower-operator-1.11.0",
-      "image": "icr.io/cpopen/datapower-operator-catalog@sha256:3de18318c9e65e9ceaaedba95bc69a84393e88f1b57cc533ebbeba213dc5a1fd",
+      "displayName": "ibm-datapower-operator-1.11.8",
+      "image": "icr.io/cpopen/datapower-operator-catalog@sha256:41ba87783a176b9e9315a522b04a93d53447b21f97591efa7d5610f28ab8e4b1",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
@@ -66,16 +66,16 @@
     },
     {
       "name": "ibm-eventendpointmanagement-catalog",
-      "displayName": "ibm-eventendpointmanagement-11.2.0+20240603.010000",
-      "image": "icr.io/cpopen/ibm-eventendpointmanagement-operator-catalog@sha256:362b58b3d7d462e22af2a8210133382590cf5e5725b070940624647feefe5fea",
+      "displayName": "ibm-eventendpointmanagement-11.6.4",
+      "image": "icr.io/cpopen/ibm-eventendpointmanagement-operator-catalog@sha256:b293422dbcabb76e48c9832b4b65b5f56a014fbd0b328b50c1b42476130772b0",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
     },
     {
       "name": "aspera-operators",
-      "displayName": "ibm-aspera-hsts-operator-1.5.13",
-      "image": "icr.io/cpopen/aspera-hsts-catalog@sha256:8f75ef2c31ee0d7cb39ae0e5efacbc315483e659bdc024957490a7974de49427",
+      "displayName": "ibm-aspera-hsts-operator-1.5.18",
+      "image": "icr.io/cpopen/aspera-hsts-catalog@sha256:e11dc2f64e214ce4622abad93219c6725221dccb00804e75bf4f9c4b2c88f68a",
       "publisher": "IBM",
       "sourceType": "grpc",
       "registryUpdate": "30m0s"
@@ -229,7 +229,7 @@
       },
       "spec": {
         "name": "ibm-eventendpointmanagement",
-        "channel": "v11.2",
+        "channel": "v11.6",
         "source": "ibm-eventendpointmanagement-catalog",
         "installPlanApproval": "Automatic"
       }
