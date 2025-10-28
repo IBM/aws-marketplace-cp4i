@@ -1,11 +1,32 @@
 #!/bin/bash
 set -e
 
-### command with all arguments
-##### create cluster
-### nohup ./rosa.sh --base-path=/home/ec2-user --operation=create --cluster-name=rosa-d01 --compute-machine-type=m5.4xlarge --replicas=3 --region=us-east-2 --machine-cidr=10.0.0.0/16 --service-cidr=172.30.0.0/16 --pod-cidr=10.128.0.0/14 --host-prefix=23 --private=false --multi-az=true --version=4.12 --subnets=subnet-5c7d2d610d4db25f,subnet-15bca0698e9b4c41,subnet-3ed7835a97324708,subnet-68bc9661bea107d1,subnet-5a6043f88f7c2461,subnet-a3646c21243f87f9 --fips=false --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
-##### destroy cluster
-### nohup ./rosa.sh --base-path=/home/ec2-user --operation=destroy --cluster-name=rosa-d01 --region=us-east-2 --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
+##### create classic cluster
+: '
+ nohup ./rosa.sh --base-path=/home/ec2-user \
+--operation=create --cluster-name=rosa-d01 --compute-machine-type=m5.4xlarge \
+--replicas=3 --region=us-east-2 --machine-cidr=10.0.0.0/16 --service-cidr=172.30.0.0/16 \
+--pod-cidr=10.128.0.0/14 --host-prefix=23 --private=false --multi-az=true --version=4.12 \
+--subnets=subnet-5c7d2d610d4db25f,subnet-15bca0698e9b4c41,subnet-3ed7835a97324708,subnet-68bc9661bea107d1,subnet-5a6043f88f7c2461,subnet-a3646c21243f87f9 
+--fips=false --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
+'
+
+##### create hcp cluster
+: '
+nohup ./rosa.sh --base-path=/home/ec2-user \
+--operation=create --cluster-type=hcp \
+--cluster-name=res-d01 --compute-machine-type=m6i.4xlarge \
+--replicas=3 --region=us-east-2 --machine-cidr=10.0.0.0/16 \
+--service-cidr=172.30.0.0/16 --pod-cidr=10.128.0.0/14 --host-prefix=23 \
+--private=false --multi-az=false --version=4.16 --subnets=subnet-05c7d2d610d4db25f,subnet-068bc9661bea107d1 \
+--fips=false --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
+'
+
+##### destroy classic cluster
+: '
+nohup ./rosa.sh --base-path=/home/ec2-user --operation=destroy --cluster-name=rosa-d01 --region=us-east-2 --rosa-token=eyJhbGciOiJIUIqTFJv3GKs9d8k &
+'
+
 
 # validate command line options
 function validate_cmd_options() {

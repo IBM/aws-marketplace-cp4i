@@ -1,10 +1,13 @@
 #!/bin/bash
 
-### command with all arguments
 ##### configure NFS storage
-### ./setup-efs.sh --base-path=/home/ec2-user --operation=create --subnets=subnet-5c7d2d610d4db25f,subnet-15bca0698e9b4c41,subnet-3ed7835a97324708
+: '
+ ./setup-efs.sh --base-path=/home/ec2-user --operation=create --subnets=subnet-05c7d2d610d4db25f,subnet-068bc9661bea107d1
+ '
 ##### destroy NFS storage
-### ./setup-efs.sh --base-path=/home/ec2-user --operation=destroy
+: '
+./setup-efs.sh --base-path=/home/ec2-user --operation=destroy
+'
 
 
 # validate cmd options
