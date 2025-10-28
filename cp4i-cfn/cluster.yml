@@ -1027,7 +1027,7 @@ Resources:
                     response = ssm.send_command(Targets=[{"Key":"instanceids","Values":[instanceID]}],
                             DocumentName="AWS-RunShellScript",
                             Parameters={"commands":["/home/ec2-user/destroy.sh %s %s %s %s" %(stackname, clustername, region, rosatoken)],
-                                        "executionTimeout":["1200"],
+                                        "executionTimeout":["1800"],
                                         "workingDirectory":["/home/ec2-user"]},
                             Comment="Execute script in uninstall openshift",
                             TimeoutSeconds=120)
@@ -1062,8 +1062,8 @@ Resources:
           RosaToken: !Ref RosaToken
       Handler: index.handler
       Role: !GetAtt 'LambdaExecutionRole.Arn'
-      Runtime: python3.8
-      Timeout: 600
+      Runtime: python3.13
+      Timeout: 900
              
   Cleanup:
     Type: Custom::Cleanup
