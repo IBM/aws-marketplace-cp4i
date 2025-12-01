@@ -23,6 +23,7 @@ Metadata:
           default: Instance Configuration
         Parameters:
           - KeyPairName
+          - ImageId
       - Label: 
           default: Openshift Configuration
         Parameters:
@@ -78,7 +79,9 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     AllowedPattern: \S+
     ConstraintDescription: It must have value
-
+  ImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0c657111a8ef56857 # Default - N.Virginia AMI ID
 
   BootNodeAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
@@ -238,43 +241,6 @@ Parameters:
       - "L-BMSF-5YDSLR"
     Default: "L-JTPV-KYG8TF"
 
-
-Mappings:
-  AWSAMIRegionMap:
-    us-east-1:
-      BootNodeAmiId: ami-0c657111a8ef56857
-    us-east-2:
-      BootNodeAmiId: ami-09004c678d306c496
-    us-west-1:
-      BootNodeAmiId: ami-0186e3fec9b0283ee
-    us-west-2:
-      BootNodeAmiId: ami-08970fb2e5767e3b8
-    ap-south-1:
-      BootNodeAmiId: ami-05c8ca4485f8b138a
-    ap-northeast-3:
-      BootNodeAmiId: ami-044921b7897a7e0da
-    ap-northeast-2:
-      BootNodeAmiId: ami-06c568b08b5a431d5
-    ap-southeast-1:
-      BootNodeAmiId: ami-051f0947e420652a9
-    ap-southeast-2:
-      BootNodeAmiId: ami-0808460885ff81045
-    ap-northeast-1:
-      BootNodeAmiId: ami-0f903fb156f24adbf
-    ca-central-1:
-      BootNodeAmiId: ami-0c3d3a230b9668c02
-    eu-central-1:
-      BootNodeAmiId: ami-0e7e134863fac4946
-    eu-west-1:
-      BootNodeAmiId: ami-0f0f1c02e5e4d9d9f
-    eu-west-2:
-      BootNodeAmiId: ami-035c5dc086849b5de
-    eu-west-3:
-      BootNodeAmiId: ami-0460bf124812bebfa
-    eu-north-1:
-      BootNodeAmiId: ami-06a2a41d455060f8b
-    sa-east-1:
-      BootNodeAmiId: ami-0c1b8b886626f940c
 
 Rules: 
   LicenseAgreementRule:
@@ -778,10 +744,9 @@ Resources:
               mode: '000600'
               owner: ec2-user
               group: ec2-user
-
     Properties:
       KeyName: !Ref 'KeyPairName'
-      ImageId: !FindInMap [AWSAMIRegionMap, !Ref "AWS::Region", BootNodeAmiId]
+      ImageId: !Ref ImageId
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
